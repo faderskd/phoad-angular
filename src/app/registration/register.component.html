@@ -1,0 +1,24 @@
+<ScrollView>
+    <FlexboxLayout class="page">
+        <StackLayout class="form" [formGroup]="registerForm">
+            <Image src="res://logo.png"></Image>
+            <Label class="header" text="Phoad"></Label>
+
+            <TextField email="true" class="input-field-error" hint="Email" keyboardType="email"
+                       autocorrect="false" autocapitalizationType="none" formControlName="email"></TextField>
+            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+
+            <TextField required minlength="8" maxlength="20" class="input-field-error" hint="Password" secure="true"
+                       autocapitalizationType="none" formControlName="password"></TextField>
+            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+
+            <TextField required class="input-field-error" hint="Confirm password" secure="true"
+                       autocapitalizationType="none" formControlName="passwordConfirm"></TextField>
+            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+
+            <Button text="Create account" class="btn btn-primary button"></Button>
+
+        </StackLayout>
+        <Button text="Log In" class="link" tap="login"></Button>
+    </FlexboxLayout>
+</ScrollView>

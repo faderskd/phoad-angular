@@ -1,10 +1,10 @@
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
-import { NativeScriptModule } from "@nativescript/angular";
+import {NativeScriptFormsModule, NativeScriptModule} from "@nativescript/angular";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { ItemsComponent } from "./item/items.component";
-import { ItemDetailComponent } from "./item/item-detail.component";
+import {RegisterComponent} from "./registration/register.component";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
     bootstrap: [
@@ -12,12 +12,13 @@ import { ItemDetailComponent } from "./item/item-detail.component";
     ],
     imports: [
         NativeScriptModule,
+        NativeScriptFormsModule,
+        ReactiveFormsModule,
         AppRoutingModule
     ],
     declarations: [
         AppComponent,
-        ItemsComponent,
-        ItemDetailComponent
+        RegisterComponent
     ],
     providers: [],
     schemas: [

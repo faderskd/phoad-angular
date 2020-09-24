@@ -1,0 +1,36 @@
+.page {
+    align-items: center;
+    flex-direction: column;
+}
+
+.form {
+    margin-left: 30;
+    margin-right: 30;
+    flex-grow: 2;
+    vertical-align: middle;
+}
+
+.header {
+    horizontal-align: center;
+    font-size: 25;
+    font-weight: 600;
+    margin-bottom: 20;
+    margin-top: 20;
+    text-align: center;
+}
+
+.input-field-error {
+    border-color: rgba(253, 60, 67, .8);
+}
+
+.color-danger {
+    color: rgba(253, 60, 67, .8);
+}
+
+.login-field-error-label {
+    margin-left: 15;
+    margin-right: 15;
+}
+
+.form-button {
+}
