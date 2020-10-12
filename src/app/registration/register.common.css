@@ -19,8 +19,16 @@
     text-align: center;
 }
 
-.input-field-error {
-    border-color: rgba(253, 60, 67, .8);
+.input-field {
+    margin-bottom: 10;
+}
+
+TextField.ng-invalid {
+    margin-bottom: 10;
+}
+
+TextField.ng-valid {
+    margin-bottom: 10;
 }
 
 .color-danger {
@@ -32,5 +40,6 @@
     margin-right: 15;
 }
 
-.form-button {
+.input-field-error {
+    border-color: rgba(253, 60, 67, .8);
 }

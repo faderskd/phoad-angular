@@ -4,21 +4,30 @@
             <Image src="res://logo.png"></Image>
             <Label class="header" text="Phoad"></Label>
 
-            <TextField email="true" class="input-field-error" hint="Email" keyboardType="email"
-                       autocorrect="false" autocapitalizationType="none" formControlName="email"></TextField>
-            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+            <TextField class="input-field" [ngClass]="{'input-field-error' : emailError !== ''}" hint="Email"
+                       keyboardType="email"
+                       autocorrect="false" autocapitalizationType="none" formControlName="email"
+                       (textChange)="validateEmail($event)"></TextField>
+            <Label class="color-danger login-field-error-label" text="{{emailError}}"
+                   [visibility]="emailError ? 'visible': 'collapse'"></Label>
 
-            <TextField required minlength="8" maxlength="20" class="input-field-error" hint="Password" secure="true"
-                       autocapitalizationType="none" formControlName="password"></TextField>
-            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+            <TextField class="input-field" [ngClass]="{'input-field-error': passwordError !== ''}" hint="Password"
+                       secure="true"
+                       autocapitalizationType="none" formControlName="password"
+                       (textChange)="validatePassword($event)"></TextField>
+            <Label class="color-danger login-field-error-label" text="{{passwordError}}"
+                   [visibility]="passwordError ? 'visible': 'collapse'"></Label>
 
-            <TextField required class="input-field-error" hint="Confirm password" secure="true"
-                       autocapitalizationType="none" formControlName="passwordConfirm"></TextField>
-            <Label class="color-danger login-field-error-label" text="Error message"></Label>
+            <TextField class="input-field" [ngClass]="{'input-field-error': confirmPasswordError !== ''}"
+                       hint="Confirm password" secure="true"
+                       (textChange)="validateConfirmPassword($event)"
+                       autocapitalizationType="none" formControlName="confirmPassword"></TextField>
+            <Label class="color-danger login-field-error-label" text="{{confirmPasswordError}}"
+                   [visibility]="confirmPasswordError ? 'visible': 'collapse'"></Label>
 
-            <Button text="Create account" class="btn btn-primary button"></Button>
+            <Button text="Create account" class="btn btn-primary button" (tap)="submit()"></Button>
 
         </StackLayout>
-        <Button text="Log In" class="link" tap="login"></Button>
+        <Button text="Log In" class="link"></Button>
     </FlexboxLayout>
 </ScrollView>
