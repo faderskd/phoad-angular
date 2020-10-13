@@ -7,20 +7,20 @@
             <TextField class="input-field" [ngClass]="{'input-field-error' : emailError !== ''}" hint="Email"
                        keyboardType="email"
                        autocorrect="false" autocapitalizationType="none" formControlName="email"
-                       (textChange)="validateEmail($event)"></TextField>
+                       (textChange)="onEmailChange($event)"></TextField>
             <Label class="color-danger login-field-error-label" text="{{emailError}}"
                    [visibility]="emailError ? 'visible': 'collapse'"></Label>
 
             <TextField class="input-field" [ngClass]="{'input-field-error': passwordError !== ''}" hint="Password"
                        secure="true"
                        autocapitalizationType="none" formControlName="password"
-                       (textChange)="validatePassword($event)"></TextField>
+                       (textChange)="onPasswordChange($event)"></TextField>
             <Label class="color-danger login-field-error-label" text="{{passwordError}}"
                    [visibility]="passwordError ? 'visible': 'collapse'"></Label>
 
             <TextField class="input-field" [ngClass]="{'input-field-error': confirmPasswordError !== ''}"
                        hint="Confirm password" secure="true"
-                       (textChange)="validateConfirmPassword($event)"
+                       (textChange)="onConfirmPasswordChange($event)"
                        autocapitalizationType="none" formControlName="confirmPassword"></TextField>
             <Label class="color-danger login-field-error-label" text="{{confirmPasswordError}}"
                    [visibility]="confirmPasswordError ? 'visible': 'collapse'"></Label>

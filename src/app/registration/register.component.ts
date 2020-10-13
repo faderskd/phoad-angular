@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import {NewUser} from "~/app/registration/new-user";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
@@ -22,10 +21,30 @@ export class RegisterComponent {
     }
 
     submit(): void {
+        this.validateEmail()
+        this.validatePassword();
+        this.validateConfirmPassword();
+        this.validatePasswordsMatch();
     }
 
-    validateEmail($event): void {
+    onEmailChange($event) {
         this.registerForm.get('email').setValue($event.value);
+        this.validateEmail();
+    }
+
+    onPasswordChange($event) {
+        this.registerForm.get('password').setValue($event.value);
+        this.validatePassword();
+        this.validatePasswordsMatch();
+    }
+
+    onConfirmPasswordChange($event) {
+        this.registerForm.get('confirmPassword').setValue($event.value);
+        this.validateConfirmPassword();
+        this.validatePasswordsMatch();
+    }
+
+    validateEmail(): void {
         let emailErrors = this.registerForm.get('email').errors;
 
         if (emailErrors === null) {
@@ -37,8 +56,7 @@ export class RegisterComponent {
         }
     }
 
-    validatePassword($event): void {
-        this.registerForm.get('password').setValue($event.value);
+    validatePassword(): void {
         let passwordErrors = this.registerForm.get('password').errors;
 
         if (passwordErrors === null) {
@@ -52,11 +70,9 @@ export class RegisterComponent {
             let requiredLength = passwordErrors.maxlength.requiredLength;
             this.passwordError = 'This field requires at most ' + requiredLength + ' characters';
         }
-        this.validatePasswordsMatch();
     }
 
-    validateConfirmPassword($event): void {
-        this.registerForm.get('confirmPassword').setValue($event.value);
+    validateConfirmPassword(): void {
         let confirmPasswordErrors = this.registerForm.get('confirmPassword').errors;
 
         if (confirmPasswordErrors === null) {
