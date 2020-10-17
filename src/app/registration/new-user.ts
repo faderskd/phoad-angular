@@ -1,12 +1,9 @@
 export class NewUser {
-  email: string;
-  password: string;
-  repeatedPassword: string;
+    email: string;
+    password: string;
 
-  constructor(email = "", password = "", repeatedPassword = "") {
-    this.email = email;
-    this.password = password;
-    this.repeatedPassword = repeatedPassword;
-  };
-
+    constructor(email = "", password = "") {
+        this.email = email;
+        this.password = password;
+    };
 }

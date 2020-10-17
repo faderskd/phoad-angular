@@ -1,12 +1,17 @@
 import {request} from "@nativescript/core/http";
+import {Injectable} from "@angular/core";
+import {Configuration} from "../config/Configuration";
 
+@Injectable({
+    providedIn: "root"
+})
 export class ServerClient {
     serverUrl: string;
     USERS_ENDPOINT = "/api/v1/users/";
     AUTHENTICATION_ENDPOINT = "/api-token-auth/";
 
-    public constructor(serverUrl: string) {
-        this.serverUrl = serverUrl
+    public constructor(config: Configuration) {
+        this.serverUrl = config.getServerUrl();
     }
 
     async registerUser(newUser) {
