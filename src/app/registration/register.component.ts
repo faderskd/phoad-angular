@@ -1,45 +1,55 @@
 import {Component} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {NewUser} from "~/app/registration/new-user";
+import {UserCredentials} from "~/app/common/user-credentials";
 import {ServerClient} from "~/app/common/http";
-import {HttpResponse} from "@nativescript/core";
+import {HttpResponse, Page} from "@nativescript/core";
+import {Router} from "@angular/router";
 
 @Component({
     selector: "register-form",
     templateUrl: "./register.component.html",
-    styleUrls: ["./register.common.css"]
+    styleUrls: ["../styles/common.style.css"]
 })
 export class RegisterComponent {
     client: ServerClient
-    registerForm: FormGroup;
-    emailError = '';
-    passwordError = '';
-    confirmPasswordError = '';
+    registerForm: FormGroup
+    emailError = ''
+    passwordError = ''
+    confirmPasswordError = ''
+    router: Router
 
-    constructor(client: ServerClient) {
+    constructor(client: ServerClient, router: Router, page: Page) {
         this.client = client;
         this.registerForm = new FormGroup({
             email: new FormControl('', [Validators.required, Validators.email]),
             password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]),
             confirmPassword: new FormControl('', [Validators.required])
         });
+        this.router = router;
+        page.actionBarHidden = true;
     }
 
     async submit() {
         if (this.validateForm()) {
             let email = this.registerForm.get('email').value;
             let password = this.registerForm.get('password').value;
-            let newUser = new NewUser(email, password);
-            let response = await this.client.registerUser(newUser);
-            this.handleResponse(response);
+            let newUser = new UserCredentials(email, password);
+            try {
+                let response = await this.client.registerUser(newUser);
+                this.handleResponse(response);
+            } catch (e) {
+                alert("Sorry, something gone wrong :(")
+                console.warn("Error during user registration", e);
+            }
         }
     }
 
     validateForm() {
-        return this.validateEmail() &&
-            this.validatePassword() &&
-            this.validateConfirmPassword() &&
-            this.validatePasswordsMatch();
+        let emailResult = this.validateEmail();
+        let passResult = this.validatePassword();
+        let confirmPassResult = this.validateConfirmPassword();
+        let passMatchResult = this.validatePasswordsMatch();
+        return emailResult && passResult && confirmPassResult && passMatchResult;
     }
 
     onEmailChange($event) {
@@ -109,6 +119,10 @@ export class RegisterComponent {
             return false;
         }
         return true;
+    }
+
+    async redirectToLogin(): Promise<boolean> {
+        return await this.router.navigate(["/login"]);
     }
 
     private handleResponse(response: HttpResponse) {

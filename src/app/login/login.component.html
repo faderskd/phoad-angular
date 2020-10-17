@@ -1,6 +1,6 @@
 <ScrollView>
     <FlexboxLayout class="page">
-        <StackLayout class="form" [formGroup]="registerForm">
+        <StackLayout class="form" [formGroup]="loginForm">
             <Image src="res://logo.png"></Image>
             <Label class="header" text="Phoad"></Label>
 
@@ -18,16 +18,9 @@
             <Label class="color-danger input-field-error-label" text="{{passwordError}}"
                    [visibility]="passwordError ? 'visible': 'collapse'"></Label>
 
-            <TextField class="input-field" [ngClass]="{'input-field-error': confirmPasswordError !== ''}"
-                       hint="Confirm password" secure="true"
-                       (textChange)="onConfirmPasswordChange($event)"
-                       autocapitalizationType="none" formControlName="confirmPassword"></TextField>
-            <Label class="color-danger input-field-error-label" text="{{confirmPasswordError}}"
-                   [visibility]="confirmPasswordError ? 'visible': 'collapse'"></Label>
-
-            <Button text="Create account" class="btn btn-primary button" (tap)="submit()"></Button>
+            <Button text="Log in" class="btn btn-primary button" (tap)="submit()"></Button>
 
         </StackLayout>
-        <Button text="Log In" class="link" (tap)="redirectToLogin()"></Button>
+        <Button text="Create account" class="link" (tap)="redirectToRegistration()"></Button>
     </FlexboxLayout>
 </ScrollView>

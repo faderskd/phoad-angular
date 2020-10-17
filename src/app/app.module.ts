@@ -5,6 +5,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import {RegisterComponent} from "./registration/register.component";
 import {ReactiveFormsModule} from "@angular/forms";
+import {LoginComponent} from "~/app/login/login.component";
 
 @NgModule({
     bootstrap: [
@@ -18,7 +19,8 @@ import {ReactiveFormsModule} from "@angular/forms";
     ],
     declarations: [
         AppComponent,
-        RegisterComponent
+        RegisterComponent,
+        LoginComponent
     ],
     providers: [],
     schemas: [
