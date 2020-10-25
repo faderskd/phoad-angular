@@ -3,7 +3,8 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {UserCredentials} from "~/app/common/user-credentials";
 import {ServerClient} from "~/app/common/http";
 import {HttpResponse, Page} from "@nativescript/core";
-import {Router} from "@angular/router";
+import {alert} from "@nativescript/core/ui/dialogs";
+import {RouterExtensions} from "@nativescript/angular";
 
 @Component({
     selector: "register-form",
@@ -16,16 +17,16 @@ export class RegisterComponent {
     emailError = ''
     passwordError = ''
     confirmPasswordError = ''
-    router: Router
+    routerExtensions: RouterExtensions
 
-    constructor(client: ServerClient, router: Router, page: Page) {
+    constructor(client: ServerClient, routerExtensions: RouterExtensions, page: Page) {
         this.client = client;
         this.registerForm = new FormGroup({
             email: new FormControl('', [Validators.required, Validators.email]),
             password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]),
             confirmPassword: new FormControl('', [Validators.required])
         });
-        this.router = router;
+        this.routerExtensions = routerExtensions;
         page.actionBarHidden = true;
     }
 
@@ -36,9 +37,9 @@ export class RegisterComponent {
             let newUser = new UserCredentials(email, password);
             try {
                 let response = await this.client.registerUser(newUser);
-                this.handleResponse(response);
+                await this.handleResponse(response);
             } catch (e) {
-                alert("Sorry, something gone wrong :(")
+                await alert("Sorry, something gone wrong :(")
                 console.warn("Error during user registration", e);
             }
         }
@@ -121,18 +122,18 @@ export class RegisterComponent {
         return true;
     }
 
-    async redirectToLogin(): Promise<boolean> {
-        return await this.router.navigate(["/login"]);
+    redirectToLogin() {
+        this.routerExtensions.back();
     }
 
-    private handleResponse(response: HttpResponse) {
+    private async handleResponse(response: HttpResponse) {
         if (response.statusCode === 201) {
             let options = {
                 message: "Great, you successfully created your account. Now you can login !",
                 okButtonText: "OK"
             };
-            alert(options)
-            //.then(login);
+            await alert(options);
+            this.redirectToLogin();
         } else if (response.statusCode === 400) {
             this.handleErrors(response.content.toJSON());
         } else {

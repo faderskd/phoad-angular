@@ -1,30 +1,39 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {ServerClient} from "~/app/common/http";
 import {HttpResponse, Page} from "@nativescript/core";
 import {UserCredentials} from "../common/user-credentials";
-import {Router} from "@angular/router";
+import {RouterExtensions} from "@nativescript/angular";
+import {Auth} from "~/app/common/auth";
 
 @Component({
     selector: "login-form",
     templateUrl: "./login.component.html",
     styleUrls: ["../styles/common.style.css"]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     client: ServerClient
     loginForm: FormGroup
     emailError = ''
     passwordError = ''
-    router: Router
+    routerExtensions: RouterExtensions
+    auth: Auth
 
-    constructor(client: ServerClient, router: Router, page: Page) {
+    constructor(client: ServerClient, routerExtensions: RouterExtensions, auth: Auth, page: Page) {
         this.client = client;
         this.loginForm = new FormGroup({
             email: new FormControl('', [Validators.required]),
             password: new FormControl('', [Validators.required]),
         });
-        this.router = router;
+        this.routerExtensions = routerExtensions;
+        this.auth = auth;
         page.actionBarHidden = true;
+    }
+
+    async ngOnInit() {
+        if (this.auth.isAuthenticated()) {
+            await this.routerExtensions.navigateByUrl('/home');
+        }
     }
 
     async submit() {
@@ -58,8 +67,8 @@ export class LoginComponent {
         this.validatePassword();
     }
 
-    async redirectToRegistration(): Promise<boolean> {
-        return await this.router.navigate(["/register"]);
+    async redirectToRegistration() {
+        await this.routerExtensions.navigate(["/register"]);
     }
 
     private validateEmail(): boolean {
@@ -89,7 +98,8 @@ export class LoginComponent {
 
     private handleResponse(response: HttpResponse) {
         if (response.statusCode === 200) {
-            // auth.authenticate(response.content.toJSON()['token'])
+            this.auth.authenticate(response.content.toJSON()['token'])
+            alert("authenticated successfully!")
             // redirect("home/home-page");
         } else if (response.statusCode === 400) {
             this.handleErrors(response.content.toJSON());

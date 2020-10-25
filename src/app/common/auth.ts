@@ -1,6 +1,10 @@
 import {SecureStorage} from "nativescript-secure-storage";
 import * as _ from "lodash";
+import {Injectable} from "@angular/core";
 
+@Injectable({
+    providedIn: "root"
+})
 export class Auth {
   private _token: string
   private _storage = new SecureStorage()
@@ -8,17 +12,18 @@ export class Auth {
   constructor() {
     this._storage = new SecureStorage();
     this._token = null;
+    this.loadAuthentication();
   }
 
-  get token() {
+  get token(): string {
     return this._token;
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     return this._token !== null && !_.isEmpty(this._token);
   }
 
-  loadAuthentication() {
+  loadAuthentication(): void {
     let token = this._storage.getSync({
       key: "token"
     });
@@ -27,7 +32,7 @@ export class Auth {
     }
   }
 
-  authenticate(token: string) {
+  authenticate(token: string): void {
     this._storage.setSync({
       key: "token",
       value: token
