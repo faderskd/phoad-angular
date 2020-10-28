@@ -43,3 +43,12 @@ TextField.ng-valid {
 .input-field-error {
     border-color: rgba(253, 60, 67, .8);
 }
+
+/*
+    File name: fa-solid-900.ttf
+    Font name: Font Awesome 5 Free
+*/
+
+.fa {
+    font-family: FontAwesome, fontawesome-webfont;
+}

@@ -35,7 +35,10 @@
     "@nativescript/angular": "~10.1.4",
     "@nativescript/core": "~7.0.0",
     "@nativescript/theme": "~2.3.0",
+    "font-awesome": "^4.7.0",
+    "nativescript-ngx-fonticon": "^7.0.0",
     "nativescript-secure-storage": "^2.6.2",
+    "nativescript-ui-sidedrawer": "^9.0.3",
     "reflect-metadata": "~0.1.12",
     "rxjs": "^6.6.0",
     "zone.js": "~0.11.1"

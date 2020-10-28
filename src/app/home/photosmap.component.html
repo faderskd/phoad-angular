@@ -1,5 +1,19 @@
-<ScrollView>
-    <FlexboxLayout class="page">
-        <label>home page</label>
-    </FlexboxLayout>
-</ScrollView>
+<ActionBar :title="Photos map">
+    <NavigationButton visibility="collapsed"></NavigationButton>
+</ActionBar>
+<RadSideDrawer>
+    <GridLayout tkDrawerContent rows="56, *" class="sideStackLayout">
+        <StackLayout class="sideTitleStackLayout">
+            <Label text="Navigation Menu"></Label>
+        </StackLayout>
+        <ScrollView row="1">
+            <StackLayout class="sideStackLayout">
+                <Label text="Primary" class="sideLabel sideLightGrayLabel"></Label>
+                <Label [text]="'fa-home' | fonticon" class="fa"></Label>
+            </StackLayout>
+        </ScrollView>
+    </GridLayout>
+    <StackLayout tkMainContent>
+        <Button text="OPEN DRAWER" (tap)="openDrawer()" class="drawerContentButton"></Button>
+    </StackLayout>
+</RadSideDrawer>

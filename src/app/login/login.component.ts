@@ -68,7 +68,7 @@ export class LoginComponent implements OnInit {
     }
 
     async redirectToRegistration() {
-        await this.routerExtensions.navigate(["/register"]);
+        await this.routerExtensions.navigateByUrl("/register");
     }
 
     private validateEmail(): boolean {
@@ -95,12 +95,10 @@ export class LoginComponent implements OnInit {
         return passwordErrors === null;
     }
 
-
-    private handleResponse(response: HttpResponse) {
+    private async handleResponse(response: HttpResponse) {
         if (response.statusCode === 200) {
             this.auth.authenticate(response.content.toJSON()['token'])
-            alert("authenticated successfully!")
-            // redirect("home/home-page");
+            await this.routerExtensions.navigateByUrl('/home');
         } else if (response.statusCode === 400) {
             this.handleErrors(response.content.toJSON());
         } else {
