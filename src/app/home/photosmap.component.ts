@@ -7,7 +7,7 @@ import {TNSFontIconService} from "nativescript-ngx-fonticon";
 
 @Component({
     templateUrl: "./photosmap.component.html",
-    styleUrls: ["../styles/common.style.css"]
+    styleUrls: ["../styles/common.style.scss", '../styles/sidemenu.style.scss']
 })
 export class PhotosMapComponent implements AfterViewInit {
     client: ServerClient
@@ -26,7 +26,11 @@ export class PhotosMapComponent implements AfterViewInit {
         this.drawer = this.drawerComponent.sideDrawer;
     }
 
-    public openDrawer() {
-        this.drawer.showDrawer();
+    public toggleDrawer() {
+        if (this.drawer.getIsOpen()) {
+            this.drawer.closeDrawer();
+        } else {
+            this.drawer.showDrawer();
+        }
     }
 }

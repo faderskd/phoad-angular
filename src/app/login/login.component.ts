@@ -9,7 +9,7 @@ import {Auth} from "~/app/common/auth";
 @Component({
     selector: "login-form",
     templateUrl: "./login.component.html",
-    styleUrls: ["../styles/common.style.css"]
+    styleUrls: ["../styles/common.style.scss"]
 })
 export class LoginComponent implements OnInit {
     client: ServerClient
