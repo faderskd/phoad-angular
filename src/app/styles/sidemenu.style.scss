@@ -1,10 +1,17 @@
 // Drawer navigation custom styles
-.nt-drawer__header-image {
-  color: white;
-  width: 50;
-  height: 50;
-}
-
 .nt-drawer__header {
-  text-align: left;
+  .nt-drawer__header-image, .nt-drawer__header-brand, .nt-drawer__header-footnote {
+    horizontal-align: left;
+  }
+
+  .nt-drawer__header-image {
+    color: white;
+    font-size: small;
+    margin-bottom: 5;
+    margin-top: 20;
+  }
+
+  .nt-drawer__header-footnote {
+    margin-bottom: 25;
+  }
 }
