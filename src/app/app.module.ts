@@ -1,11 +1,14 @@
-import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
+import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {NativeScriptFormsModule, NativeScriptModule} from "@nativescript/angular";
+import {NativeScriptUISideDrawerModule} from "nativescript-ui-sidedrawer/angular";
 
-import { AppRoutingModule } from "./app-routing.module";
-import { AppComponent } from "./app.component";
+import {AppRoutingModule} from "./app-routing.module";
+import {AppComponent} from "./app.component";
 import {RegisterComponent} from "./registration/register.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {LoginComponent} from "~/app/login/login.component";
+import {PhotosMapComponent} from "~/app/home/photosmap.component";
+import {TNSFontIconModule} from "nativescript-ngx-fonticon";
 
 @NgModule({
     bootstrap: [
@@ -14,17 +17,23 @@ import {LoginComponent} from "~/app/login/login.component";
     imports: [
         NativeScriptModule,
         NativeScriptFormsModule,
+        NativeScriptUISideDrawerModule,
         ReactiveFormsModule,
-        AppRoutingModule
+        AppRoutingModule,
+        TNSFontIconModule.forRoot({
+            'fa': require('./styles/font-awesome.min.css').default
+        })
     ],
     declarations: [
         AppComponent,
         RegisterComponent,
-        LoginComponent
+        LoginComponent,
+        PhotosMapComponent
     ],
     providers: [],
     schemas: [
         NO_ERRORS_SCHEMA
     ]
 })
-export class AppModule { }
+export class AppModule {
+}

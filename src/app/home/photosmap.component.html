@@ -1,5 +1,36 @@
-<ScrollView>
-    <FlexboxLayout class="page">
-        <label>home page</label>
-    </FlexboxLayout>
-</ScrollView>
+<ActionBar :title="Photos map">
+    <NavigationButton visibility="collapsed"></NavigationButton>
+    <ActionItem icon="font://&#xf0c9;" class="fa" ios.position="left" (tap)="toggleDrawer()"></ActionItem>
+</ActionBar>
+<RadSideDrawer>
+    <GridLayout tkDrawerContent rows="auto, *" class="nt-drawer__content">
+        <StackLayout row="0" class="nt-drawer__header">
+            <Image class="nt-drawer__header-image fa" src="font://&#xf2bd;"></Image>
+            <Label class="nt-drawer__header-brand" text="User Name"></Label>
+            <Label class="nt-drawer__header-footnote" text="username@mail.com"></Label>
+        </StackLayout>
+
+        <ScrollView row="1" class="nt-drawer__body">
+            <StackLayout>
+                <GridLayout columns="auto, *" class="nt-drawer__list-item">
+                    <Label col="0" text="{{'fa-map' | fonticon}}" class="nt-icon fa"></Label>
+                    <Label col="1" text="Map" class="p-r-10 t-14"></Label>
+                </GridLayout>
+
+                <StackLayout class="hr"></StackLayout>
+
+                <GridLayout columns="auto, *" class="nt-drawer__list-item">
+                    <Label col="0" text="{{'fa-cog' | fonticon}}" class="nt-icon fa"></Label>
+                    <Label col="1" text="Profile" class="p-r-10 t-14"></Label>
+                </GridLayout>
+
+                <GridLayout columns="auto, *" class="nt-drawer__list-item">
+                    <Label col="0" text="{{'fa-power-off' | fonticon}}" class="nt-icon fa"></Label>
+                    <Label col="1" text="Logout" class="p-r-10 t-14"></Label>
+                </GridLayout>
+            </StackLayout>
+        </ScrollView>
+    </GridLayout>
+    <StackLayout tkMainContent>
+    </StackLayout>
+</RadSideDrawer>

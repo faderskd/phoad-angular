@@ -9,7 +9,7 @@ import {RouterExtensions} from "@nativescript/angular";
 @Component({
     selector: "register-form",
     templateUrl: "./register.component.html",
-    styleUrls: ["../styles/common.style.css"]
+    styleUrls: ["../styles/common.style.scss"]
 })
 export class RegisterComponent {
     client: ServerClient
