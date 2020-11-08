@@ -4,7 +4,7 @@ import {ServerClient} from "~/app/common/http";
 import {HttpResponse, Page} from "@nativescript/core";
 import {UserCredentials} from "../common/user-credentials";
 import {RouterExtensions} from "@nativescript/angular";
-import {Auth} from "~/app/common/auth";
+import {Authentication} from "~/app/common/authentication";
 
 @Component({
     selector: "login-form",
@@ -17,9 +17,9 @@ export class LoginComponent implements OnInit {
     emailError = ''
     passwordError = ''
     routerExtensions: RouterExtensions
-    auth: Auth
+    auth: Authentication
 
-    constructor(client: ServerClient, routerExtensions: RouterExtensions, auth: Auth, page: Page) {
+    constructor(client: ServerClient, routerExtensions: RouterExtensions, auth: Authentication, page: Page) {
         this.client = client;
         this.loginForm = new FormGroup({
             email: new FormControl('', [Validators.required]),

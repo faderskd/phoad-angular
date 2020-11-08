@@ -4,6 +4,8 @@ import {RouterExtensions} from "@nativescript/angular";
 import {RadSideDrawerComponent} from "nativescript-ui-sidedrawer/angular";
 import {RadSideDrawer} from "nativescript-ui-sidedrawer";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
+import * as geolocation from "@nativescript/geolocation";
+import {Accuracy} from "@nativescript/core/ui/enums";
 
 @Component({
     templateUrl: "./photosmap.component.html",
@@ -12,6 +14,8 @@ import {TNSFontIconService} from "nativescript-ngx-fonticon";
 export class PhotosMapComponent implements AfterViewInit {
     client: ServerClient
     routerExtensions: RouterExtensions
+    GEOLOCATION_TIMEOUT = 20000
+    GEOLOCATION_MAX_AGE = 5000
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService) {
@@ -26,11 +30,18 @@ export class PhotosMapComponent implements AfterViewInit {
         this.drawer = this.drawerComponent.sideDrawer;
     }
 
-    public toggleDrawer() {
+    toggleDrawer() {
         if (this.drawer.getIsOpen()) {
             this.drawer.closeDrawer();
         } else {
             this.drawer.showDrawer();
         }
+    }
+
+    async takePhoto() {
+        await geolocation.enableLocationRequest();
+        let location = await geolocation.getCurrentLocation(
+            {desiredAccuracy: Accuracy.high, maximumAge: this.GEOLOCATION_MAX_AGE, timeout: this.GEOLOCATION_TIMEOUT});
+
     }
 }
