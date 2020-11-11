@@ -33,6 +33,8 @@
     "@angular/platform-browser-dynamic": "~10.1.4",
     "@angular/router": "~10.1.4",
     "@nativescript/angular": "~10.1.4",
+    "@nativescript/background-http": "^5.0.1",
+    "@nativescript/camera": "^5.0.2",
     "@nativescript/core": "~7.0.0",
     "@nativescript/geolocation": "^7.0.0",
     "@nativescript/theme": "~2.3.0",
