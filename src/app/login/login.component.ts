@@ -41,9 +41,9 @@ export class LoginComponent implements OnInit {
             let email = this.loginForm.get('email').value;
             let password = this.loginForm.get('password').value;
             let credentials = new UserCredentials(email, password);
-            let response = await this.client.loginUser(credentials);
             try {
-                this.handleResponse(response);
+                let response = await this.client.loginUser(credentials);
+                await this.handleResponse(response);
             } catch (e) {
                 alert("Sorry, something gone wrong :(")
                 console.warn("Error during user authentication", e);
