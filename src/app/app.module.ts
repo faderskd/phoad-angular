@@ -9,12 +9,11 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {LoginComponent} from "~/app/login/login.component";
 import {PhotosMapComponent} from "~/app/home/photosmap.component";
 import {TNSFontIconModule} from "nativescript-ngx-fonticon";
-import {PreviousNextView} from "@nativescript/iqkeyboardmanager";
 
 import {registerElement} from "@nativescript/angular";
 
 
-registerElement("PreviousNextView", () => PreviousNextView);
+registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanager").PreviousNextView);
 
 @NgModule({
     bootstrap: [
