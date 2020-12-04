@@ -1,0 +1,15 @@
+.gallery-photo {
+    background-color: aqua;
+    height: 200;
+    width: 200;
+}
+.gallery-label {
+    background-color: red;
+}
+
+.gallery-item {
+    background-color: green;
+    margin-bottom: 2;
+    margin-right: 2;
+    padding: 2;
+}

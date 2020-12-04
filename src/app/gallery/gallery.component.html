@@ -1,0 +1,18 @@
+<ActionBar :title="Gallery">
+</ActionBar>
+<GridLayout>
+    <RadListView [items]="photosList">
+        <ng-template tkListItemTemplate let-item="item">
+            <GridLayout rows="auto, auto" class="gallery-item">
+                <Image row="0" src="res://logo.png" class="gallery-photo" stretch="aspectFill"></Image>
+            </GridLayout>
+        </ng-template>
+
+        <ListViewGridLayout
+                itemWidth="200"
+                itemHeight="200"
+                dynamicItemSize="false"
+                tkListViewLayout scrollDirection="Vertical"
+                spanCount="2"></ListViewGridLayout>
+    </RadListView>
+</GridLayout>

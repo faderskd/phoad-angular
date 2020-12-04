@@ -1,6 +1,7 @@
 import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {NativeScriptFormsModule, NativeScriptModule} from "@nativescript/angular";
 import {NativeScriptUISideDrawerModule} from "nativescript-ui-sidedrawer/angular";
+import { NativeScriptUIListViewModule } from "nativescript-ui-listview/angular";
 
 import {AppRoutingModule} from "./app-routing.module";
 import {AppComponent} from "./app.component";
@@ -11,6 +12,7 @@ import {PhotosMapComponent} from "~/app/home/photosmap.component";
 import {TNSFontIconModule} from "nativescript-ngx-fonticon";
 
 import {registerElement} from "@nativescript/angular";
+import {GalleryComponent} from "~/app/gallery/gallery.component";
 
 
 registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanager").PreviousNextView);
@@ -23,6 +25,7 @@ registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanag
         NativeScriptModule,
         NativeScriptFormsModule,
         NativeScriptUISideDrawerModule,
+        NativeScriptUIListViewModule,
         ReactiveFormsModule,
         AppRoutingModule,
         TNSFontIconModule.forRoot({
@@ -33,7 +36,8 @@ registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanag
         AppComponent,
         RegisterComponent,
         LoginComponent,
-        PhotosMapComponent
+        PhotosMapComponent,
+        GalleryComponent
     ],
     providers: [],
     schemas: [
