@@ -6,20 +6,11 @@ import {RadSideDrawer} from "nativescript-ui-sidedrawer";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import * as geolocation from "@nativescript/geolocation";
 import * as camera from "@nativescript/camera";
-import {Accuracy} from "@nativescript/core/ui/enums";
-import {knownFolders, path, Folder} from "@nativescript/core/file-system";
-import {ImageSource} from "@nativescript/core/image-source";
-import {
-    CompleteEventData,
-    ErrorEventData,
-    ProgressEventData,
-    ResultEventData,
-    session
-} from "@nativescript/background-http";
+import {knownFolders, Folder} from "@nativescript/core/file-system";
 import {Configuration} from "~/app/config/Configuration";
 import {Authentication} from "~/app/common/authentication";
-import {Photo, PhotoLocation} from "~/app/home/photos";
-import {ImageAsset} from "@nativescript/core";
+import {PhotosTaker, PhotosTakerSettings} from "~/app/home/photostaker";
+import {PhotosUploader} from "~/app/home/photosuploader";
 
 
 @Component({
@@ -27,18 +18,30 @@ import {ImageAsset} from "@nativescript/core";
     styleUrls: ["../styles/common.style.scss", '../styles/sidemenu.style.scss']
 })
 export class PhotosMapComponent implements AfterViewInit {
-    client: ServerClient;
-    routerExtensions: RouterExtensions;
-    photoUploadUrl: string;
-    drawer: RadSideDrawer;
-    auth: Authentication;
-    GEOLOCATION_TIMEOUT = 20000;
-    GEOLOCATION_MAX_AGE = 5000;
-    PHOTO_WIDTH = 200;
-    PHOTO_HEIGHT = 200;
-    PHOTO_SAVE_DIR = "saved_images";
-    PHOTO_SAVE_PATH = knownFolders.currentApp().path + `/${this.PHOTO_SAVE_DIR}`;
-    PHOTO_UPLOAD_URL = "/api/v1/photos/";
+    private _client: ServerClient;
+    private _routerExtensions: RouterExtensions;
+    private _drawer: RadSideDrawer;
+
+    private GEOLOCATION_TIMEOUT = 20000;
+    private GEOLOCATION_MAX_AGE = 5000;
+
+    private PHOTO_WIDTH = 200;
+    private PHOTO_HEIGHT = 200;
+    private PHOTO_SAVE_DIR = "saved_images";
+    private PHOTO_SAVE_PATH = knownFolders.currentApp().path + `/${this.PHOTO_SAVE_DIR}`;
+    private PHOTO_UPLOAD_URL = "/api/v1/photos/";
+
+    private _photosTaker = new PhotosTaker(
+        new PhotosTakerSettings(
+            this.PHOTO_WIDTH,
+            this.PHOTO_HEIGHT,
+            this.GEOLOCATION_MAX_AGE,
+            this.GEOLOCATION_TIMEOUT,
+            this.PHOTO_SAVE_PATH
+        ))
+    private _photosUploader: PhotosUploader
+
+    processing: boolean = false
 
     @ViewChild(RadSideDrawerComponent, {static: false})
     drawerComponent: RadSideDrawerComponent;
@@ -46,98 +49,37 @@ export class PhotosMapComponent implements AfterViewInit {
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService, config: Configuration,
                 auth: Authentication) {
-        this.client = client;
-        this.routerExtensions = routerExtensions;
-        this.photoUploadUrl = config.getServerUrl() + this.PHOTO_UPLOAD_URL;
-        this.auth = auth;
+        this._client = client;
+        this._routerExtensions = routerExtensions;
+        this._photosUploader = new PhotosUploader(config.getServerUrl() + this.PHOTO_UPLOAD_URL, auth);
         Folder.fromPath(knownFolders.currentApp().path).getFolder(this.PHOTO_SAVE_DIR);
     }
 
     async ngAfterViewInit() {
-        this.drawer = this.drawerComponent.sideDrawer;
+        this._drawer = this.drawerComponent.sideDrawer;
         await geolocation.enableLocationRequest();
         await camera.requestPermissions();
     }
 
     toggleDrawer() {
-        if (this.drawer.getIsOpen()) {
-            this.drawer.closeDrawer();
+        if (this._drawer.getIsOpen()) {
+            this._drawer.closeDrawer();
         } else {
-            this.drawer.showDrawer();
+            this._drawer.showDrawer();
         }
     }
 
     async takePhotoAtLocation() {
         try {
-            let location = await this.getLocation();
-            let asset = await this.takePhoto();
-            let photo = await this.saveToFile(location, asset);
-
-            let imageUploadSession = session("phoad-image-upload");
-            let request = {
-                url: this.photoUploadUrl,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/form-data",
-                    "Authorization": `Token ${this.auth.token}`
-                },
-                description: "Uploading " + photo.name
-            }
-            let params = [
-                {name: "image", filename: photo.filePath},
-                {name: "latitude", value: location.latitude},
-                {name: "longitude", value: location.longitude},
-                {name: "timestamp", value: location.timestamp},
-            ];
-            let task = imageUploadSession.multipartUpload(params, request);
-            task.on("progress", progressHandler);
-            task.on("error", errorHandler);
-            task.on("responded", respondedHandler);
-            task.on("complete", completeHandler);
-
+            let photoAtLocation = await this._photosTaker.takePhotoAtLocation();
+            this.processing = true;
+            let task = this._photosUploader.uploadPhoto(photoAtLocation);
+            task.on("complete", () => {
+                this.processing = false;
+            });
         } catch (err) {
             console.dir(err);
             alert("Sorry, something gone wrong :( Try again")
         }
-
-        function progressHandler(e: ProgressEventData) {
-            console.log("progress -> uploaded " + e.currentBytes + " / " + e.totalBytes);
-        }
-
-        function errorHandler(e: ErrorEventData) {
-            alert("error -> received " + e.responseCode + " code.");
-        }
-
-        function respondedHandler(e: ResultEventData) {
-            console.log("responsed -> received " + e.responseCode + " code. Server sent: " + e.data);
-        }
-
-        function completeHandler(e: CompleteEventData) {
-            console.log("complete -> received " + e.responseCode + " code");
-        }
-    }
-
-    private async takePhoto() {
-        return await camera.takePicture(
-            {saveToGallery: false, width: this.PHOTO_WIDTH, height: this.PHOTO_HEIGHT, keepAspectRatio: true});
-    }
-
-    private async getLocation() {
-        let location = await geolocation.getCurrentLocation(
-            {
-                desiredAccuracy: Accuracy.any,
-                maximumAge: this.GEOLOCATION_MAX_AGE,
-                timeout: this.GEOLOCATION_TIMEOUT
-            });
-        return new PhotoLocation(location.latitude, location.longitude, location.timestamp.toISOString());
-    }
-
-    private async saveToFile(location: PhotoLocation, imageAsset: ImageAsset): Promise<Photo> {
-        let filename = 'img_' + location.timestamp.split(':').join('_')
-        filename = filename.split('.').join('_') + ".jpg";
-        let filepath = path.join(this.PHOTO_SAVE_PATH, filename);
-        let imageSource = await ImageSource.fromAsset(imageAsset);
-        imageSource.saveToFile(filepath, "jpg");
-        return new Photo(filepath, filename);
     }
 }
