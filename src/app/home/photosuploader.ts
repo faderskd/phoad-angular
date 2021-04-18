@@ -27,29 +27,15 @@ export class PhotosUploader {
         }
         let params = [
             {name: "image", filename: photoAtLocation.photo.filePath},
+            {name: "name", value: photoAtLocation.photo.name},
             {name: "latitude", value: photoAtLocation.location.latitude},
             {name: "longitude", value: photoAtLocation.location.longitude},
             {name: "timestamp", value: photoAtLocation.location.timestamp},
         ];
         return imageUploadSession.multipartUpload(params, request);
-        // task.on("progress", this.progressHandler);
-        // task.on("error", this.errorHandler);
-        // task.on("responded", this.respondedHandler);
         // task.on("complete", this.completeHandler);
     }
 
-    // private progressHandler(e: ProgressEventData) {
-    //     console.log("progress -> uploaded " + e.currentBytes + " / " + e.totalBytes);
-    // }
-    //
-    // private errorHandler(e: ErrorEventData) {
-    //     alert("error -> received " + e.responseCode + " code.");
-    // }
-    //
-    // private respondedHandler(e: ResultEventData) {
-    //     console.log("responsed -> received " + e.responseCode + " code. Server sent: " + e.data);
-    // }
-    //
     // private completeHandler(e: CompleteEventData) {
     //     console.log("complete -> received " + e.responseCode + " code");
     // }

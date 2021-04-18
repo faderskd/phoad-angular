@@ -27,7 +27,7 @@ export class PhotosTaker {
                 maximumAge: this._settings.geolocationMaxAge,
                 timeout: this._settings.geolocationTimeout
             });
-        return new PhotoLocation(location.latitude, location.longitude, location.timestamp.toISOString());
+        return new PhotoLocation(location.latitude, location.longitude, new Date().toISOString());
     }
 
     private async takePhoto(): Promise<ImageAsset> {

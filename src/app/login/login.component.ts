@@ -5,6 +5,7 @@ import {HttpResponse, Page} from "@nativescript/core";
 import {UserCredentials} from "../common/user-credentials";
 import {RouterExtensions} from "@nativescript/angular";
 import {Authentication} from "~/app/common/authentication";
+import {alert} from "@nativescript/core/ui/dialogs";
 
 @Component({
     selector: "login-form",
@@ -45,7 +46,7 @@ export class LoginComponent implements OnInit {
                 let response = await this.client.loginUser(credentials);
                 await this.handleResponse(response);
             } catch (e) {
-                alert("Sorry, something gone wrong :(")
+                await alert("Sorry, something gone wrong :(")
                 console.warn("Error during user authentication", e);
             }
         }

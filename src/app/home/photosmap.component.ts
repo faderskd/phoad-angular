@@ -11,6 +11,8 @@ import {Configuration} from "~/app/config/Configuration";
 import {Authentication} from "~/app/common/authentication";
 import {PhotosTaker, PhotosTakerSettings} from "~/app/home/photostaker";
 import {PhotosUploader} from "~/app/home/photosuploader";
+import {ErrorEventData, ResultEventData} from "@nativescript/background-http";
+import {alert} from "@nativescript/core/ui/dialogs";
 
 
 @Component({
@@ -23,7 +25,7 @@ export class PhotosMapComponent implements AfterViewInit {
     private _drawer: RadSideDrawer;
 
     private GEOLOCATION_TIMEOUT = 20000;
-    private GEOLOCATION_MAX_AGE = 5000;
+    private GEOLOCATION_MAX_AGE = 1000;
 
     private PHOTO_WIDTH = 200;
     private PHOTO_HEIGHT = 200;
@@ -74,12 +76,23 @@ export class PhotosMapComponent implements AfterViewInit {
             let photoAtLocation = await this._photosTaker.takePhotoAtLocation();
             this.processing = true;
             let task = this._photosUploader.uploadPhoto(photoAtLocation);
+            console.log(photoAtLocation.location.timestamp);
             task.on("complete", () => {
                 this.processing = false;
             });
+            task.on("error", (e: ErrorEventData) => {
+                alert("Something gone wrong :( Please try again...")
+                console.dir(e);
+            })
+            task.on("responded", (r: ResultEventData) => {
+                if (r.responseCode != 201) {
+                    alert("Sorry something gone wrong :( Please try again...");
+                    console.dir(r);
+                }
+            });
         } catch (err) {
             console.dir(err);
-            alert("Sorry, something gone wrong :( Try again")
+            await alert("Sorry something gone wrong :( Please try again...")
         }
     }
 }
