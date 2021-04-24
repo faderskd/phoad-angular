@@ -6,10 +6,10 @@ import {RadSideDrawer} from "nativescript-ui-sidedrawer";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import * as geolocation from "@nativescript/geolocation";
 import * as camera from "@nativescript/camera";
-import {knownFolders, Folder} from "@nativescript/core/file-system";
+import {knownFolders} from "@nativescript/core/file-system";
 import {Configuration} from "~/app/config/Configuration";
 import {Authentication} from "~/app/common/authentication";
-import {PhotosTaker, PhotosTakerSettings} from "~/app/home/photostaker";
+import {PhotosManager, PhotosManagerSettings} from "~/app/home/photosmanager";
 import {PhotosUploader} from "~/app/home/photosuploader";
 import {ErrorEventData, ResultEventData} from "@nativescript/background-http";
 import {alert} from "@nativescript/core/ui/dialogs";
@@ -33,8 +33,8 @@ export class PhotosMapComponent implements AfterViewInit {
     private PHOTO_SAVE_PATH = knownFolders.currentApp().path + `/${this.PHOTO_SAVE_DIR}`;
     private PHOTO_UPLOAD_URL = "/api/v1/photos/";
 
-    private _photosTaker = new PhotosTaker(
-        new PhotosTakerSettings(
+    private _photosManager = new PhotosManager(
+        new PhotosManagerSettings(
             this.PHOTO_WIDTH,
             this.PHOTO_HEIGHT,
             this.GEOLOCATION_MAX_AGE,
@@ -46,7 +46,7 @@ export class PhotosMapComponent implements AfterViewInit {
     processing: boolean = false
 
     @ViewChild(RadSideDrawerComponent, {static: false})
-    drawerComponent: RadSideDrawerComponent;
+    private _drawerComponent: RadSideDrawerComponent;
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService, config: Configuration,
@@ -54,11 +54,10 @@ export class PhotosMapComponent implements AfterViewInit {
         this._client = client;
         this._routerExtensions = routerExtensions;
         this._photosUploader = new PhotosUploader(config.getServerUrl() + this.PHOTO_UPLOAD_URL, auth);
-        Folder.fromPath(knownFolders.currentApp().path).getFolder(this.PHOTO_SAVE_DIR);
     }
 
     async ngAfterViewInit() {
-        this._drawer = this.drawerComponent.sideDrawer;
+        this._drawer = this._drawerComponent.sideDrawer;
         await geolocation.enableLocationRequest();
         await camera.requestPermissions();
     }
@@ -73,12 +72,12 @@ export class PhotosMapComponent implements AfterViewInit {
 
     async takePhotoAtLocation() {
         try {
-            let photoAtLocation = await this._photosTaker.takePhotoAtLocation();
+            let photoAtLocation = await this._photosManager.takePhotoAtLocation();
             this.processing = true;
             let task = this._photosUploader.uploadPhoto(photoAtLocation);
-            console.log(photoAtLocation.location.timestamp);
-            task.on("complete", () => {
+            task.on("complete", async () => {
                 this.processing = false;
+                await this._photosManager.removePhotoFile(photoAtLocation);
             });
             task.on("error", (e: ErrorEventData) => {
                 alert("Something gone wrong :( Please try again...")

@@ -2,14 +2,14 @@ import * as camera from "@nativescript/camera";
 import * as geolocation from "@nativescript/geolocation";
 import {Accuracy} from "@nativescript/core/ui/enums";
 import {Photo, PhotoAtLocation, PhotoLocation} from "./photos";
-import {ImageAsset} from "@nativescript/core";
+import {File, ImageAsset} from "@nativescript/core";
 import {path} from "@nativescript/core/file-system";
 import {ImageSource} from "@nativescript/core/image-source";
 
-export class PhotosTaker {
-    private _settings: PhotosTakerSettings
+export class PhotosManager {
+    private _settings: PhotosManagerSettings
 
-    constructor(settings: PhotosTakerSettings) {
+    constructor(settings: PhotosManagerSettings) {
         this._settings = settings;
     }
 
@@ -18,6 +18,10 @@ export class PhotosTaker {
         let asset = await this.takePhoto();
         let photo = await this.saveToFile(location, asset);
         return new PhotoAtLocation(location, photo);
+    }
+
+    async removePhotoFile(photoAtLocation: PhotoAtLocation) {
+        return await File.fromPath(photoAtLocation.photo.filePath).remove();
     }
 
     private async getLocation(): Promise<PhotoLocation> {
@@ -51,7 +55,7 @@ export class PhotosTaker {
     }
 }
 
-export class PhotosTakerSettings {
+export class PhotosManagerSettings {
     private _photoWidth: number
     private _photoHeight: number
     private _geolocationMaxAge: number

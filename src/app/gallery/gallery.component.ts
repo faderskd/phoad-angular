@@ -1,13 +1,12 @@
 import {ServerClient} from "~/app/common/http";
 import {RouterExtensions} from "@nativescript/angular";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
-import {Configuration} from "~/app/config/Configuration";
-import {Authentication} from "~/app/common/authentication";
 import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
-import {Folder, knownFolders, ObservableArray} from "@nativescript/core";
-import {PhotoAtLocation} from "~/app/home/photos";
-import {RadListView} from "nativescript-ui-listview";
+import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listview";
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
+import {GalleryParser} from "~/app/gallery/galleryparser";
+import {alert} from "@nativescript/core/ui/dialogs";
+import {Gallery} from "~/app/gallery/gallery";
 
 
 @Component({
@@ -15,41 +14,35 @@ import {RadListViewComponent} from "nativescript-ui-listview/angular";
     styleUrls: ["../styles/common.style.scss", "gallery.component.css"]
 })
 export class GalleryComponent implements OnInit, AfterViewInit {
-    client: ServerClient;
-    auth: Authentication;
-    radListView: RadListView;
-    photoReadUrl: string;
-    PHOTO_SAVE_DIR = "saved_images";
-    PHOTO_READ_PATH = knownFolders.currentApp().path + `/${this.PHOTO_SAVE_DIR}`;
-    PHOTO_READ_URL = "/api/v1/photos/";
-    photosList: ObservableArray<PhotoAtLocation>;
+    private readonly _client: ServerClient;
 
+    gallery: Gallery;
+    radListView: RadListView;
     @ViewChild(RadListViewComponent, {static: false})
     radListViewComponent: RadListViewComponent;
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
-                fontIconService: TNSFontIconService, config: Configuration,
-                auth: Authentication) {
-        this.client = client;
-        this.photoReadUrl = config.getServerUrl() + this.PHOTO_READ_URL;
-        this.auth = auth;
-        Folder.fromPath(knownFolders.currentApp().path).getFolder(this.PHOTO_SAVE_DIR);
+                fontIconService: TNSFontIconService) {
+        this._client = client;
     }
 
     ngAfterViewInit(): void {
         this.radListView = this.radListViewComponent.listView;
     }
 
-    ngOnInit(): void {
-        this.photosList = new ObservableArray<PhotoAtLocation>([
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-            new PhotoAtLocation(null, null),
-        ]);
+    async ngOnInit(): Promise<void> {
+        try {
+            let response = await this._client.getChronologicalGallery();
+            this.gallery = GalleryParser.parseGallery(response.content.toJSON());
+        } catch (err) {
+            console.dir(err);
+            await alert("Sorry something gone wrong :( Please try again...")
+        }
+    }
+
+    async onLoadMoreItemsRequested(event: LoadOnDemandListViewEventData) {
+        let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
+        let nextGallery = GalleryParser.parseGallery(response.content.toJSON());
+        this.gallery.update(nextGallery);
     }
 }

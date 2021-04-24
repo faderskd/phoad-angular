@@ -1,10 +1,10 @@
 <ActionBar :title="Gallery">
 </ActionBar>
 <GridLayout>
-    <RadListView [items]="photosList">
+    <RadListView [items]="gallery.photos" loadOnDemandMode="Manual" (loadMoreDataRequested)="onLoadMoreItemsRequested($event)">
         <ng-template tkListItemTemplate let-item="item">
             <GridLayout rows="auto, auto" class="gallery-item">
-                <Image row="0" src="res://logo.png" class="gallery-photo" stretch="aspectFill"></Image>
+                <Image row="0" [src]="item.photo.imageUrl" class="gallery-photo" stretch="aspectFill"></Image>
             </GridLayout>
         </ng-template>
 

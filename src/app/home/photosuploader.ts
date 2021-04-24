@@ -33,10 +33,5 @@ export class PhotosUploader {
             {name: "timestamp", value: photoAtLocation.location.timestamp},
         ];
         return imageUploadSession.multipartUpload(params, request);
-        // task.on("complete", this.completeHandler);
     }
-
-    // private completeHandler(e: CompleteEventData) {
-    //     console.log("complete -> received " + e.responseCode + " code");
-    // }
 }
