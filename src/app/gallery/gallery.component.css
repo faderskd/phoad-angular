@@ -1,8 +1,14 @@
+@keyframes show {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .gallery-photo {
     background-color: aqua;
     height: 200;
     width: 200;
 }
+
 .gallery-label {
     background-color: red;
 }
@@ -12,4 +18,34 @@
     margin-bottom: 2;
     margin-right: 2;
     padding: 2;
+}
+
+.dialogOpen .content {
+    opacity: 0.2;
+}
+
+.dialogOpen .dialog-wrapper {
+    visibility: visible;
+    animation-name: show;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.dialog-wrapper {
+    visibility: collapse;
+    opacity: 0;
+}
+
+.dialog {
+    border-width: 1;
+    border-color: black;
+    background-color: white;
+    width: 100%;
+    margin-top: 100;
+    padding: 20;
+}
+
+.dialog Label {
+    margin: 0 15 15 15;
+    color: black;
 }

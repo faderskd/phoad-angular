@@ -1,4 +1,4 @@
-import {PhotoLocation} from "../home/photos";
+import {Location} from "../home/photos";
 import {ObservableArray} from "@nativescript/core";
 
 export class Gallery {
@@ -32,13 +32,17 @@ export class Gallery {
     set nextUrl(value: string) {
         this._nextUrl = value;
     }
+
+    static empty() {
+        return new Gallery(new ObservableArray<GalleryPhotoAtLocation>([]), null);
+    }
 }
 
 export class GalleryPhotoAtLocation {
-    private readonly _location: PhotoLocation;
+    private readonly _location: Location;
     private readonly _photo: GalleryPhoto;
 
-    constructor(location: PhotoLocation, photo: GalleryPhoto) {
+    constructor(location: Location, photo: GalleryPhoto) {
         this._location = location;
         this._photo = photo;
     }
@@ -47,7 +51,7 @@ export class GalleryPhotoAtLocation {
         return this._photo;
     }
 
-    get location(): PhotoLocation {
+    get location(): Location {
         return this._location;
     }
 
@@ -69,5 +73,4 @@ export class GalleryPhoto {
     get name(): string {
         return this._name;
     }
-
 }

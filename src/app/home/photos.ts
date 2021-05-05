@@ -1,4 +1,4 @@
-export class PhotoLocation {
+export class Location {
     private readonly _latitude: number
     private readonly _longitude: number
     private readonly _timestamp: string
@@ -41,10 +41,10 @@ export class Photo {
 }
 
 export class PhotoAtLocation {
-    private _location: PhotoLocation
+    private _location: Location
     private _photo: Photo
 
-    constructor(location: PhotoLocation, photo: Photo) {
+    constructor(location: Location, photo: Photo) {
         this._location = location;
         this._photo = photo;
     }
@@ -54,7 +54,7 @@ export class PhotoAtLocation {
         return this._photo;
     }
 
-    get location(): PhotoLocation {
+    get location(): Location {
         return this._location;
     }
 }

@@ -1,7 +1,7 @@
 import * as camera from "@nativescript/camera";
 import * as geolocation from "@nativescript/geolocation";
 import {Accuracy} from "@nativescript/core/ui/enums";
-import {Photo, PhotoAtLocation, PhotoLocation} from "./photos";
+import {Photo, PhotoAtLocation, Location} from "./photos";
 import {File, ImageAsset} from "@nativescript/core";
 import {path} from "@nativescript/core/file-system";
 import {ImageSource} from "@nativescript/core/image-source";
@@ -24,14 +24,14 @@ export class PhotosManager {
         return await File.fromPath(photoAtLocation.photo.filePath).remove();
     }
 
-    private async getLocation(): Promise<PhotoLocation> {
+    private async getLocation(): Promise<Location> {
         let location = await geolocation.getCurrentLocation(
             {
                 desiredAccuracy: Accuracy.any,
                 maximumAge: this._settings.geolocationMaxAge,
                 timeout: this._settings.geolocationTimeout
             });
-        return new PhotoLocation(location.latitude, location.longitude, new Date().toISOString());
+        return new Location(location.latitude, location.longitude, new Date().toISOString());
     }
 
     private async takePhoto(): Promise<ImageAsset> {
@@ -45,7 +45,7 @@ export class PhotosManager {
         );
     }
 
-    private async saveToFile(location: PhotoLocation, imageAsset: ImageAsset): Promise<Photo> {
+    private async saveToFile(location: Location, imageAsset: ImageAsset): Promise<Photo> {
         let filename = 'img_' + location.timestamp.split(':').join('_')
         filename = filename.split('.').join('_') + ".jpg";
         let filepath = path.join(this._settings.photosSavePath, filename);

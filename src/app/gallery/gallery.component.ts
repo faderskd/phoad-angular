@@ -13,24 +13,28 @@ import {Gallery} from "~/app/gallery/gallery";
     templateUrl: "./gallery.component.html",
     styleUrls: ["../styles/common.style.scss", "gallery.component.css"]
 })
-export class GalleryComponent implements OnInit, AfterViewInit {
+export class GalleryComponent implements AfterViewInit {
     private readonly _client: ServerClient;
+    private _initialized: boolean = false;
 
+    galleryModalOpen: boolean = false;
     gallery: Gallery;
     radListView: RadListView;
     @ViewChild(RadListViewComponent, {static: false})
     radListViewComponent: RadListViewComponent;
 
+
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService) {
         this._client = client;
+        this.gallery = Gallery.empty();
     }
 
     ngAfterViewInit(): void {
         this.radListView = this.radListViewComponent.listView;
     }
 
-    async ngOnInit(): Promise<void> {
+    private async initGallery(): Promise<void> {
         try {
             let response = await this._client.getChronologicalGallery();
             this.gallery = GalleryParser.parseGallery(response.content.toJSON());
@@ -41,8 +45,24 @@ export class GalleryComponent implements OnInit, AfterViewInit {
     }
 
     async onLoadMoreItemsRequested(event: LoadOnDemandListViewEventData) {
-        let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
-        let nextGallery = GalleryParser.parseGallery(response.content.toJSON());
-        this.gallery.update(nextGallery);
+        if (!this._initialized) {
+            await this.initGallery();
+            this._initialized = true;
+             event.returnValue = this.gallery.nextUrl != null;
+            this.radListView.notifyLoadOnDemandFinished(this.gallery.nextUrl == null);
+        } else if (this.gallery.nextUrl) {
+            let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
+            let nextGallery = GalleryParser.parseGallery(response.content.toJSON());
+            this.gallery.update(nextGallery);
+            event.returnValue = true;
+            this.radListView.notifyLoadOnDemandFinished(false);
+        } else {
+            event.returnValue = false;
+            this.radListView.notifyLoadOnDemandFinished(true);
+        }
+    }
+
+    toggleModal() {
+        this.galleryModalOpen = !this.galleryModalOpen;
     }
 }

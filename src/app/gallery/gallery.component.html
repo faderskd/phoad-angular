@@ -1,7 +1,8 @@
 <ActionBar :title="Gallery">
 </ActionBar>
-<GridLayout>
-    <RadListView [items]="gallery.photos" loadOnDemandMode="Manual" (loadMoreDataRequested)="onLoadMoreItemsRequested($event)">
+<GridLayout [class.dialogOpen]="galleryModalOpen">
+    <RadListView [items]="gallery.photos" loadOnDemandMode="Auto"
+                 (loadMoreDataRequested)="onLoadMoreItemsRequested($event)">
         <ng-template tkListItemTemplate let-item="item">
             <GridLayout rows="auto, auto" class="gallery-item">
                 <Image row="0" [src]="item.photo.imageUrl" class="gallery-photo" stretch="aspectFill"></Image>
@@ -15,4 +16,14 @@
                 tkListViewLayout scrollDirection="Vertical"
                 spanCount="2"></ListViewGridLayout>
     </RadListView>
+
+    <Button text="CLOSE MODAL" (tap)="toggleModal()"></Button>
+
+    <AbsoluteLayout class="dialog-wrapper">
+        <StackLayout backgroundColor="green" class="dialog">
+            <Image row="0" src="http://localhost:8000/media/img_2021-05-05T13_26_21_386Z.jpg" class="gallery-photo" stretch="aspectFill"></Image>
+
+            <Label style="text-align: center;" text="Modal view with ActionBar" textWrap="true"></Label>
+        </StackLayout>
+    </AbsoluteLayout>
 </GridLayout>
