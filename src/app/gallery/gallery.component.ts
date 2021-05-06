@@ -6,7 +6,8 @@ import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listvi
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
 import {GalleryParser} from "~/app/gallery/galleryparser";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {Gallery} from "~/app/gallery/gallery";
+import {Gallery, GalleryPhotoAtLocation} from "~/app/gallery/gallery";
+import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
 
 
 @Component({
@@ -18,6 +19,8 @@ export class GalleryComponent implements AfterViewInit {
     private _initialized: boolean = false;
 
     galleryModalOpen: boolean = false;
+    currentGalleryImage: GalleryPhotoAtLocation;
+
     gallery: Gallery;
     radListView: RadListView;
     @ViewChild(RadListViewComponent, {static: false})
@@ -48,7 +51,7 @@ export class GalleryComponent implements AfterViewInit {
         if (!this._initialized) {
             await this.initGallery();
             this._initialized = true;
-             event.returnValue = this.gallery.nextUrl != null;
+            event.returnValue = this.gallery.nextUrl != null;
             this.radListView.notifyLoadOnDemandFinished(this.gallery.nextUrl == null);
         } else if (this.gallery.nextUrl) {
             let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
@@ -62,7 +65,22 @@ export class GalleryComponent implements AfterViewInit {
         }
     }
 
+    imageClicked(photo: GalleryPhotoAtLocation) {
+        this.currentGalleryImage = photo;
+        this.toggleModal();
+    }
+
+    swipeDispatch(event) {
+        if (event.direction == SwipeDirection.up) {
+            this.closeModal();
+        }
+    }
+
     toggleModal() {
         this.galleryModalOpen = !this.galleryModalOpen;
+    }
+
+    closeModal() {
+        this.galleryModalOpen = false;
     }
 }

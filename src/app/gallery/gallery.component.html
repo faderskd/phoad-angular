@@ -5,7 +5,8 @@
                  (loadMoreDataRequested)="onLoadMoreItemsRequested($event)" class="content">
         <ng-template tkListItemTemplate let-item="item">
             <GridLayout rows="auto, auto" class="gallery-item">
-                <Image row="0" [src]="item.photo.imageUrl" class="gallery-photo" stretch="aspectFill"></Image>
+                <Image row="0" [src]="item.photo.imageUrl" class="gallery-photo" stretch="aspectFill"
+                       (tap)="imageClicked(item)"></Image>
             </GridLayout>
         </ng-template>
 
@@ -17,14 +18,10 @@
                 spanCount="2"></ListViewGridLayout>
     </RadListView>
 
-    <Button text="CLOSE MODAL" (tap)="toggleModal()"></Button>
-
-    <FlexboxLayout class="dialog-wrapper">
+    <FlexboxLayout class="dialog-wrapper" (swipe)="swipeDispatch($event)">
         <StackLayout class="dialog">
-            <Image row="0" src="http://localhost:8000/media/img_2021-05-05T13_26_21_386Z.jpg" class="gallery-photo"
+            <Image row="0" src="{{currentGalleryImage != null ? currentGalleryImage.photo.imageUrl : ''}}" class="gallery-photo"
                    stretch="aspectFill"></Image>
-
-            <Label style="text-align: center;" text="Modal view with ActionBar" textWrap="true"></Label>
         </StackLayout>
     </FlexboxLayout>
 </GridLayout>

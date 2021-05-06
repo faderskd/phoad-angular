@@ -31,7 +31,7 @@
 .dialog-open .dialog-wrapper {
     visibility: visible;
     animation-name: show;
-    animation-duration: 0.3s;
+    animation-duration: 0.5s;
     animation-fill-mode: forwards;
     align-items: center;
     horizontal-align: center;
