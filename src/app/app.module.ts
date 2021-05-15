@@ -1,5 +1,5 @@
 import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
-import {NativeScriptFormsModule, NativeScriptModule} from "@nativescript/angular";
+import {ModalDialogService, NativeScriptFormsModule, NativeScriptModule} from "@nativescript/angular";
 import {NativeScriptUISideDrawerModule} from "nativescript-ui-sidedrawer/angular";
 import { NativeScriptUIListViewModule } from "nativescript-ui-listview/angular";
 
@@ -13,6 +13,7 @@ import {TNSFontIconModule} from "nativescript-ngx-fonticon";
 
 import {registerElement} from "@nativescript/angular";
 import {GalleryComponent} from "~/app/gallery/gallery.component";
+import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
 
 
 registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanager").PreviousNextView);
@@ -37,9 +38,12 @@ registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanag
         RegisterComponent,
         LoginComponent,
         PhotosMapComponent,
-        GalleryComponent
+        GalleryComponent,
+        GalleryModalComponent,
     ],
-    providers: [],
+    providers: [
+        ModalDialogService
+    ],
     schemas: [
         NO_ERRORS_SCHEMA
     ]

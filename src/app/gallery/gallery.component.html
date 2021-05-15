@@ -1,6 +1,6 @@
 <ActionBar :title="Gallery">
 </ActionBar>
-<GridLayout [class.dialog-open]="galleryModalOpen">
+<GridLayout>
     <RadListView [items]="gallery.photos" loadOnDemandMode="Auto"
                  (loadMoreDataRequested)="onLoadMoreItemsRequested($event)" class="content">
         <ng-template tkListItemTemplate let-item="item">
@@ -17,11 +17,4 @@
                 tkListViewLayout scrollDirection="Vertical"
                 spanCount="2"></ListViewGridLayout>
     </RadListView>
-
-    <FlexboxLayout class="dialog-wrapper" (swipe)="swipeDispatch($event)">
-        <StackLayout class="dialog">
-            <Image row="0" src="{{currentGalleryImage != null ? currentGalleryImage.photo.imageUrl : ''}}" class="gallery-photo"
-                   stretch="aspectFill"></Image>
-        </StackLayout>
-    </FlexboxLayout>
 </GridLayout>

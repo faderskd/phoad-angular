@@ -1,13 +1,14 @@
 import {ServerClient} from "~/app/common/http";
-import {RouterExtensions} from "@nativescript/angular";
+import {ModalDialogService, RouterExtensions} from "@nativescript/angular";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
-import {AfterViewInit, Component, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listview";
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
 import {GalleryParser} from "~/app/gallery/galleryparser";
 import {alert} from "@nativescript/core/ui/dialogs";
 import {Gallery, GalleryPhotoAtLocation} from "~/app/gallery/gallery";
 import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
+import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
 
 
 @Component({
@@ -17,6 +18,8 @@ import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
 export class GalleryComponent implements AfterViewInit {
     private readonly _client: ServerClient;
     private _initialized: boolean = false;
+    private _modalDialogService: ModalDialogService;
+    private _vcRef: ViewContainerRef
 
     galleryModalOpen: boolean = false;
     currentGalleryImage: GalleryPhotoAtLocation;
@@ -28,7 +31,10 @@ export class GalleryComponent implements AfterViewInit {
 
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
-                fontIconService: TNSFontIconService) {
+                fontIconService: TNSFontIconService, modalDialogService: ModalDialogService,
+                vcRef: ViewContainerRef) {
+        this._modalDialogService = modalDialogService;
+        this._vcRef = vcRef;
         this._client = client;
         this.gallery = Gallery.empty();
     }
@@ -67,7 +73,7 @@ export class GalleryComponent implements AfterViewInit {
 
     imageClicked(photo: GalleryPhotoAtLocation) {
         this.currentGalleryImage = photo;
-        this.toggleModal();
+        this.showModal();
     }
 
     swipeDispatch(event) {
@@ -76,11 +82,17 @@ export class GalleryComponent implements AfterViewInit {
         }
     }
 
-    toggleModal() {
-        this.galleryModalOpen = !this.galleryModalOpen;
+    showModal() {
+        let options = {
+            context: {},
+            fullscreen: true,
+            viewContainerRef: this._vcRef
+        };
+        this._modalDialogService.showModal(GalleryModalComponent, options).then(response => {
+            console.log(response);
+        });
     }
 
     closeModal() {
-        this.galleryModalOpen = false;
     }
 }
