@@ -1,6 +1,7 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {ModalDialogParams} from "@nativescript/angular";
-import {Gallery, GalleryPhotoAtLocation} from "./gallery";
+import {GalleryPhotoAtLocation} from "./gallery";
+import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
 
 
 @Component({
@@ -8,16 +9,23 @@ import {Gallery, GalleryPhotoAtLocation} from "./gallery";
     templateUrl: "gallery.modal.html",
     styleUrls: ["../styles/common.style.scss", "gallery.modal.css"]
 })
-export class GalleryModalComponent {
+export class GalleryModalComponent implements OnInit {
     currentGalleryImage: GalleryPhotoAtLocation
-    private _gallery: Gallery
-    private _galleryStartIndex: number
 
-    constructor(private modalDialogParams: ModalDialogParams) {
-        // this.currentGalleryImage = this.gallery.photos.getItem(galleryStartIndex);
+    constructor(private params: ModalDialogParams) {
     }
 
-    // public close(response: String) {
-    //     this.params.closeCallback(response);
-    // }
+    ngOnInit(): void {
+        this.currentGalleryImage = this.params.context.gallery.photos[this.params.context.currentPhotoIndex];
+    }
+
+    swipeDispatch(event) {
+        if (event.direction == SwipeDirection.left) {
+            this.currentGalleryImage = this.params.context.gallery.takeNextPhoto(this.currentGalleryImage);
+        }
+    }
+
+    public close() {
+        this.params.closeCallback("modal closed");
+    }
 }

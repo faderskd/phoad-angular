@@ -12,8 +12,10 @@ export class Gallery {
 
     update(other: Gallery) {
         this.nextUrl = other.nextUrl
+        let index = this.photos.length;
         other.photos.forEach((value => {
-            this.photos.push(value)
+            this.photos.push(
+                new GalleryPhotoAtLocation(value.location, value.photo, index++))
         }));
     }
 
@@ -33,6 +35,16 @@ export class Gallery {
         this._nextUrl = value;
     }
 
+    takeNextPhoto(photo: GalleryPhotoAtLocation): GalleryPhotoAtLocation {
+        if (this.photos.length== 0) {
+            return null;
+        }
+        if (this.photos.length > photo.index + 1) {
+            return this.photos[photo.index + 1];
+        }
+        return this.photos[this.photos.length - 1];
+    }
+
     static empty() {
         return new Gallery(new ObservableArray<GalleryPhotoAtLocation>([]), null);
     }
@@ -41,10 +53,12 @@ export class Gallery {
 export class GalleryPhotoAtLocation {
     private readonly _location: Location;
     private readonly _photo: GalleryPhoto;
+    private readonly _index: number
 
-    constructor(location: Location, photo: GalleryPhoto) {
+    constructor(location: Location, photo: GalleryPhoto, index: number) {
         this._location = location;
         this._photo = photo;
+        this._index = index;
     }
 
     get photo(): GalleryPhoto {
@@ -55,6 +69,9 @@ export class GalleryPhotoAtLocation {
         return this._location;
     }
 
+    get index(): number {
+        return this._index;
+    }
 }
 
 export class GalleryPhoto {

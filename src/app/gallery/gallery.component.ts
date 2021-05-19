@@ -6,8 +6,7 @@ import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listvi
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
 import {GalleryParser} from "~/app/gallery/galleryparser";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {Gallery, GalleryPhotoAtLocation} from "~/app/gallery/gallery";
-import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
+import {Gallery} from "~/app/gallery/gallery";
 import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
 
 
@@ -20,9 +19,6 @@ export class GalleryComponent implements AfterViewInit {
     private _initialized: boolean = false;
     private _modalDialogService: ModalDialogService;
     private _vcRef: ViewContainerRef
-
-    galleryModalOpen: boolean = false;
-    currentGalleryImage: GalleryPhotoAtLocation;
 
     gallery: Gallery;
     radListView: RadListView;
@@ -71,28 +67,21 @@ export class GalleryComponent implements AfterViewInit {
         }
     }
 
-    imageClicked(photo: GalleryPhotoAtLocation) {
-        this.currentGalleryImage = photo;
-        this.showModal();
+    imageClicked(index: number) {
+        this.showModal(index);
     }
 
-    swipeDispatch(event) {
-        if (event.direction == SwipeDirection.up) {
-            this.closeModal();
-        }
-    }
-
-    showModal() {
+    showModal(index: number) {
         let options = {
-            context: {},
-            fullscreen: true,
+            context: {
+                currentPhotoIndex: index,
+                gallery: this.gallery
+            },
+            fullscreen: false,
             viewContainerRef: this._vcRef
         };
         this._modalDialogService.showModal(GalleryModalComponent, options).then(response => {
             console.log(response);
         });
-    }
-
-    closeModal() {
     }
 }

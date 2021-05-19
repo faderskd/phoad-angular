@@ -1,6 +1,6 @@
-<FlexboxLayout class="dialog-wrapper">
+<FlexboxLayout class="dialog-wrapper" (swipe)="swipeDispatch($event)">
     <StackLayout class="dialog">
-        <Image row="0" src="http://localhost:8000/media/img_2021-04-20T22_10_53_322Z.jpg" class="gallery-photo"
+        <Image row="0" src="{{currentGalleryImage.photo.imageUrl}}" class="gallery-photo"
                stretch="aspectFill"></Image>
     </StackLayout>
 </FlexboxLayout>

@@ -2,11 +2,11 @@
 </ActionBar>
 <GridLayout>
     <RadListView [items]="gallery.photos" loadOnDemandMode="Auto"
-                 (loadMoreDataRequested)="onLoadMoreItemsRequested($event)" class="content">
-        <ng-template tkListItemTemplate let-item="item">
+                 (loadMoreDataRequested)="onLoadMoreItemsRequested($event)">
+        <ng-template tkListItemTemplate let-item="item" let-index="index">
             <GridLayout rows="auto, auto" class="gallery-item">
                 <Image row="0" [src]="item.photo.imageUrl" class="gallery-photo" stretch="aspectFill"
-                       (tap)="imageClicked(item)"></Image>
+                       (tap)="imageClicked(index)"></Image>
             </GridLayout>
         </ng-template>
 
@@ -15,6 +15,7 @@
                 itemHeight="200"
                 dynamicItemSize="false"
                 tkListViewLayout scrollDirection="Vertical"
-                spanCount="2"></ListViewGridLayout>
+                spanCount="2">
+        </ListViewGridLayout>
     </RadListView>
 </GridLayout>

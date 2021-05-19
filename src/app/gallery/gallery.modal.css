@@ -1,23 +1,10 @@
 .dialog-wrapper {
-    animation-name: show;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
     align-items: center;
-    horizontal-align: center;
+    horizontal-alignment: center;
 }
 
 .dialog {
-    border-width: 1 0 1 0;
     border-color: aliceblue;
     background-color: azure;
-    width: 90%;
-    height: 90%;
-}
-
-.dialog .gallery-photo {
-}
-
-.dialog Label {
-    margin: 0 15 15 15;
-    color: black;
+    padding: 10px;
 }
