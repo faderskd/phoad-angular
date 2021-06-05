@@ -6,17 +6,15 @@ import {Screen} from "@nativescript/core/platform";
 import {AnimationDefinition} from "@nativescript/core/ui/animation/animation-interfaces";
 import {GalleryPhotoAtLocation} from "~/app/gallery/gallery";
 
-// TODO: refactor, new version, merge to master
-
 @Component({
     selector: "phoad-modal",
     templateUrl: "gallery.modal.html",
     styleUrls: ["../styles/common.style.scss", "gallery.modal.css"]
 })
 export class GalleryModalComponent implements AfterViewInit {
-    currentGalleryImage: GalleryPhotoAtLocation
+    private currentGalleryImage: GalleryPhotoAtLocation
     private currentModalContent: number = 1
-    private screenWidth: number
+    private readonly screenWidth: number
 
     @ViewChild('galleryModalContent1', {static: false}) contentElement1: ElementRef;
     @ViewChild('galleryModalContent2', {static: false}) contentElement2: ElementRef;
@@ -84,11 +82,8 @@ export class GalleryModalComponent implements AfterViewInit {
         });
         let animationSet = new Animation(definitions);
         animationSet.play()
-            .then(() => {
-                console.log("animation done")
-            })
             .catch(e => {
-                console.log("animation error")
+                console.error(e.toString())
             });
     }
 

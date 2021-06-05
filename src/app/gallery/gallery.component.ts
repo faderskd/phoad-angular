@@ -19,9 +19,9 @@ export class GalleryComponent implements AfterViewInit {
     private _initialized: boolean = false;
     private _modalDialogService: ModalDialogService;
     private _vcRef: ViewContainerRef
+    private radListView: RadListView;
 
     gallery: Gallery;
-    radListView: RadListView;
     @ViewChild(RadListViewComponent, {static: false})
     radListViewComponent: RadListViewComponent;
 
@@ -37,16 +37,6 @@ export class GalleryComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.radListView = this.radListViewComponent.listView;
-    }
-
-    private async initGallery(): Promise<void> {
-        try {
-            let response = await this._client.getChronologicalGallery();
-            this.gallery = GalleryParser.parseGallery(response.content.toJSON());
-        } catch (err) {
-            console.dir(err);
-            await alert("Sorry something gone wrong :( Please try again...")
-        }
     }
 
     async onLoadMoreItemsRequested(event: LoadOnDemandListViewEventData) {
@@ -67,11 +57,11 @@ export class GalleryComponent implements AfterViewInit {
         }
     }
 
-    imageClicked(index: number) {
-        this.showModal(index);
+    async imageClicked(index: number) {
+        await this.showModal(index);
     }
 
-    showModal(index: number) {
+    private async showModal(index: number) {
         let options = {
             context: {
                 currentPhotoIndex: index,
@@ -80,8 +70,16 @@ export class GalleryComponent implements AfterViewInit {
             fullscreen: false,
             viewContainerRef: this._vcRef
         };
-        this._modalDialogService.showModal(GalleryModalComponent, options).then(response => {
-            console.log(response);
-        });
+        await this._modalDialogService.showModal(GalleryModalComponent, options);
+    }
+
+    private async initGallery(): Promise<void> {
+        try {
+            let response = await this._client.getChronologicalGallery();
+            this.gallery = GalleryParser.parseGallery(response.content.toJSON());
+        } catch (err) {
+            console.dir(err);
+            await alert("Sorry something gone wrong :( Please try again...")
+        }
     }
 }

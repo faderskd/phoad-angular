@@ -27,10 +27,6 @@ export class Gallery {
         return this._nextUrl;
     }
 
-    set photos(value: ObservableArray<GalleryPhotoAtLocation>) {
-        this._photos = value;
-    }
-
     set nextUrl(value: string) {
         this._nextUrl = value;
     }
