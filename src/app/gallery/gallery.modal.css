@@ -1,0 +1,10 @@
+.dialog-wrapper {
+    align-items: center;
+    horizontal-alignment: center;
+}
+
+.dialog {
+    border-color: aliceblue;
+    background-color: azure;
+    padding: 10px;
+}

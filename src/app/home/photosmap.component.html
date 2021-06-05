@@ -1,6 +1,9 @@
 <ActionBar :title="Photos map">
     <NavigationButton visibility="collapsed"></NavigationButton>
-    <ActionItem icon="font://&#xf0c9;" class="fa" ios.position="left" (tap)="toggleDrawer()"></ActionItem>
+    <ActionItem icon="font://&#xf0c9;" class="fa side-menu-button" ios.position="left"
+                (tap)="toggleDrawer()"></ActionItem>
+    <ActionItem icon="font://&#xf083;" class="fa take-photo-button" ios.position="right"
+                (tap)="takePhotoAtLocation()"></ActionItem>
 </ActionBar>
 <RadSideDrawer>
     <GridLayout tkDrawerContent rows="auto, *" class="nt-drawer__content">
@@ -15,6 +18,11 @@
                 <GridLayout columns="auto, *" class="nt-drawer__list-item">
                     <Label col="0" text="{{'fa-map' | fonticon}}" class="nt-icon fa"></Label>
                     <Label col="1" text="Map" class="p-r-10 t-14"></Label>
+                </GridLayout>
+
+                <GridLayout columns="auto, *" class="nt-drawer__list-item" [nsRouterLink]="['/gallery']">
+                    <Label col="0" text="{{'fa-image' | fonticon}}" class="nt-icon fa"></Label>
+                    <Label col="1" text="Gallery" class="p-r-10 t-14"></Label>
                 </GridLayout>
 
                 <StackLayout class="hr"></StackLayout>
@@ -32,5 +40,8 @@
         </ScrollView>
     </GridLayout>
     <StackLayout tkMainContent>
+        <GridLayout rows="auto *">
+            <ActivityIndicator color="green" [busy]="processing"></ActivityIndicator>
+        </GridLayout>
     </StackLayout>
 </RadSideDrawer>

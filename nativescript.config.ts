@@ -1,7 +1,7 @@
 import {NativeScriptConfig} from '@nativescript/core';
 
 export default {
-    id: 'org.nativescript.phoadangular',
+    id: 'phoad.phoad',
     appResourcesPath: 'App_Resources',
     appPath: 'src',
     android: {
