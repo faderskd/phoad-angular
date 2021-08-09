@@ -4,10 +4,10 @@ import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listview";
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
-import {GalleryParser} from "~/app/gallery/galleryparser";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {Gallery} from "~/app/gallery/gallery";
 import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
+import {ScrolledGallery} from "~/app/gallery/gallery";
+import {PhotosBatchParser} from "~/app/locatedphotos/photosbatchparser";
 
 
 @Component({
@@ -21,7 +21,7 @@ export class GalleryComponent implements AfterViewInit {
     private _vcRef: ViewContainerRef
     private radListView: RadListView;
 
-    gallery: Gallery;
+    gallery: ScrolledGallery;
     @ViewChild(RadListViewComponent, {static: false})
     radListViewComponent: RadListViewComponent;
 
@@ -32,7 +32,7 @@ export class GalleryComponent implements AfterViewInit {
         this._modalDialogService = modalDialogService;
         this._vcRef = vcRef;
         this._client = client;
-        this.gallery = Gallery.empty();
+        this.gallery = ScrolledGallery.empty();
     }
 
     ngAfterViewInit(): void {
@@ -47,7 +47,7 @@ export class GalleryComponent implements AfterViewInit {
             this.radListView.notifyLoadOnDemandFinished(this.gallery.nextUrl == null);
         } else if (this.gallery.nextUrl) {
             let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
-            let nextGallery = GalleryParser.parseGallery(response.content.toJSON());
+            let nextGallery = ScrolledGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
             this.gallery.update(nextGallery);
             event.returnValue = true;
             this.radListView.notifyLoadOnDemandFinished(false);
@@ -76,7 +76,7 @@ export class GalleryComponent implements AfterViewInit {
     private async initGallery(): Promise<void> {
         try {
             let response = await this._client.getChronologicalGallery();
-            this.gallery = GalleryParser.parseGallery(response.content.toJSON());
+            this.gallery = ScrolledGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
         } catch (err) {
             console.dir(err);
             await alert("Sorry something gone wrong :( Please try again...")

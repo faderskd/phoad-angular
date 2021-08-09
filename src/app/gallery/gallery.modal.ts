@@ -4,7 +4,7 @@ import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
 import {Animation, ContentView, Image} from "@nativescript/core";
 import {Screen} from "@nativescript/core/platform";
 import {AnimationDefinition} from "@nativescript/core/ui/animation/animation-interfaces";
-import {GalleryPhotoAtLocation} from "~/app/gallery/gallery";
+import {PhotoAtLocation} from "~/app/locatedphotos/photos";
 
 @Component({
     selector: "phoad-modal",
@@ -12,7 +12,7 @@ import {GalleryPhotoAtLocation} from "~/app/gallery/gallery";
     styleUrls: ["../styles/common.style.scss", "gallery.modal.css"]
 })
 export class GalleryModalComponent implements AfterViewInit {
-    private currentGalleryImage: GalleryPhotoAtLocation
+    private currentGalleryImage: PhotoAtLocation
     private currentModalContent: number = 1
     private readonly screenWidth: number
 
