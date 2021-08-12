@@ -32,4 +32,8 @@ export class Configuration {
     get mapMarkersLimit(): number {
         return config.MAP_MARKERS_LIMIT;
     }
+
+    get mapLocationChangedDebounce(): number {
+        return config.MAP_LOCATION_CHANGED_DEBOUNCE_MILLIS;
+    }
 }

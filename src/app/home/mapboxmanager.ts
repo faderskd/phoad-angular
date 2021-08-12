@@ -8,6 +8,7 @@ import {PhotosBatch} from "../locatedphotos/batch";
 import {ObservableArray} from "@nativescript/core";
 import {ServerClient} from "../common/http";
 import {Configuration} from "~/app/config/Configuration";
+import * as _ from "lodash";
 
 export class MapboxManager {
     private readonly _client: ServerClient;
@@ -34,25 +35,29 @@ export class MapboxManager {
     }
 
     private async addMapMovedListener() {
-        await this._mapboxView.setOnMoveBeginListener(async (data?: LatLng) => {
-            let locationAfterMapMoved = {
-                latitude: data.lat,
-                longitude: data.lng
-            };
-            try {
-                let response = await this._client.getPhotosBasedOnLocation(locationAfterMapMoved);
-                let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
-                this._photosBatch.update(photosBatch);
-                await this.addMarkers(photosBatch);
-                await this.collectGarbagePhotosIfNeeded(
-                    new Location(locationAfterMapMoved.latitude,
-                        locationAfterMapMoved.longitude,
-                        new Date().toISOString()));
-            } catch (err) {
-                console.log(err);
-                await alert("Sorry something gone wrong while fetching photos:( Please try again...");
-            }
-        });
+        await this._mapboxView.setOnScrollListener(_.debounce(async (data?: LatLng) => {
+            await this.locationChangedListener(data);
+        }, this._config.mapLocationChangedDebounce));
+    }
+
+    private async locationChangedListener(data?: LatLng) {
+        let locationAfterMapMoved = {
+            latitude: data.lat,
+            longitude: data.lng
+        };
+        try {
+            let response = await this._client.getPhotosBasedOnLocation(locationAfterMapMoved);
+            let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
+            this._photosBatch.update(photosBatch);
+            await this.addMarkers(photosBatch);
+            await this.collectGarbagePhotosIfNeeded(
+                new Location(locationAfterMapMoved.latitude,
+                    locationAfterMapMoved.longitude,
+                    new Date().toISOString()));
+        } catch (err) {
+            console.log(err);
+            await alert("Sorry something gone wrong while fetching photos:( Please try again...");
+        }
     }
 
     async setLocatedPhotosOnMap(currentLocation: Location) {
