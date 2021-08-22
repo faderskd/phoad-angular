@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {UserCredentials} from "~/app/common/user-credentials";
+import {UserCredentials} from "~/app/common/usercredentials";
 import {ServerClient} from "~/app/common/http";
 import {HttpResponse, Page} from "@nativescript/core";
 import {alert} from "@nativescript/core/ui/dialogs";

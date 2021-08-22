@@ -15,6 +15,7 @@ import {alert} from "@nativescript/core/ui/dialogs";
 import {LocationService} from "~/app/home/locationservice";
 import {Location} from "~/app/locatedphotos/location";
 import {MapboxManager} from "~/app/home/mapboxmanager";
+import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
 
 registerElement("Mapbox", () => require("@nativescript-community/ui-mapbox").MapboxView);
 
@@ -35,6 +36,7 @@ export class PhotosMapComponent implements AfterViewInit {
     private _currentLocation: Location;
     private _config: Configuration;
     private _mapboxManager: MapboxManager;
+    private _authenticationEnsurer: AuthenticationEnsurer;
 
     processing: boolean = false
 
@@ -50,6 +52,7 @@ export class PhotosMapComponent implements AfterViewInit {
         this._photosUploader = new PhotosUploader(config.getServerUrl() + this.PHOTO_UPLOAD_URL, auth);
         this._photosManager = new PhotosManager(config, locationService);
         this._config = config;
+        this._authenticationEnsurer = new AuthenticationEnsurer(auth, routerExtensions);
     }
 
     async ngAfterViewInit() {
@@ -95,7 +98,7 @@ export class PhotosMapComponent implements AfterViewInit {
     async onMapReady($event: any) {
         let currentLocation = await this._locationService.getLocation();
         let mapboxView = $event.map;
-        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView);
+        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView, this._authenticationEnsurer);
         await this._mapboxManager.initMapbox(currentLocation);
     }
 }

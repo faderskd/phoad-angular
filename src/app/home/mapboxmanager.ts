@@ -9,6 +9,7 @@ import {ObservableArray} from "@nativescript/core";
 import {ServerClient} from "../common/http";
 import {Configuration} from "~/app/config/Configuration";
 import * as _ from "lodash";
+import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
 
 export class MapboxManager {
     private readonly _client: ServerClient;
@@ -16,12 +17,15 @@ export class MapboxManager {
     private _config: Configuration;
     private _mapboxView: MapboxView;
     private _currentMarkersNames: Set<String>;
+    private _authenticationEnsurer: AuthenticationEnsurer;
 
-    constructor(client: ServerClient, config: Configuration, mapboxView: MapboxView) {
+    constructor(client: ServerClient, config: Configuration, mapboxView: MapboxView,
+                authenticationEnsurer: AuthenticationEnsurer) {
         this._client = client;
         this._config = config;
         this._mapboxView = mapboxView;
         this._currentMarkersNames = new Set<String>();
+        this._authenticationEnsurer = authenticationEnsurer;
     }
 
     async initMapbox(currentLocation: Location) {
@@ -45,15 +49,16 @@ export class MapboxManager {
             latitude: data.lat,
             longitude: data.lng
         };
+        let domainLocation = new Location(
+            locationAfterMapMoved.latitude, locationAfterMapMoved.longitude, new Date().toISOString());
+
         try {
-            let response = await this._client.getPhotosBasedOnLocation(locationAfterMapMoved);
+            let response = await this.getPhotosBasedOnLocation(domainLocation);
             let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
             this._photosBatch.update(photosBatch);
+
             await this.addMarkers(photosBatch);
-            await this.collectGarbagePhotosIfNeeded(
-                new Location(locationAfterMapMoved.latitude,
-                    locationAfterMapMoved.longitude,
-                    new Date().toISOString()));
+            await this.collectGarbagePhotosIfNeeded(domainLocation);
         } catch (err) {
             console.log(err);
             await alert("Sorry something gone wrong while fetching photos:( Please try again...");
@@ -62,7 +67,7 @@ export class MapboxManager {
 
     async setLocatedPhotosOnMap(currentLocation: Location) {
         try {
-            let response = await this._client.getPhotosBasedOnLocation(currentLocation);
+            let response = await this.getPhotosBasedOnLocation(currentLocation);
             let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
             this._photosBatch = photosBatch;
             await this.addMarkers(photosBatch);
@@ -70,6 +75,12 @@ export class MapboxManager {
             console.log(err);
             await alert("Sorry something gone wrong while fetching photos:( Please try again...");
         }
+    }
+
+    private async getPhotosBasedOnLocation(location: Location) {
+        let response = await this._client.getPhotosBasedOnLocation(location);
+        await this._authenticationEnsurer.ensureAuthenticated(response);
+        return response;
     }
 
     private async collectGarbagePhotosIfNeeded(location: Location) {
@@ -87,7 +98,7 @@ export class MapboxManager {
     }
 
     private extractSurvivorAndDeleteBatches(location: Location): GarbageCollectedBatches {
-        let photosWithDistance = this.photosSortedByDistance(location);
+        let photosWithDistance = this.photosSortedByDistanceFromLocation(location);
         let deletedPhotos = photosWithDistance.splice(this._config.mapMarkersLimit)
             .map((photoWithDistance, index) =>
                 new PhotoAtLocation(
@@ -105,7 +116,7 @@ export class MapboxManager {
             new PhotosBatch(new ObservableArray<PhotoAtLocation>(deletedPhotos), null));
     }
 
-    private photosSortedByDistance(location: Location) {
+    private photosSortedByDistanceFromLocation(location: Location) {
         return this._photosBatch.photos.map(locatedPhoto => {
             let longDiff = locatedPhoto.location.longitude - location.longitude;
             let latDiff = locatedPhoto.location.latitude - location.latitude;
