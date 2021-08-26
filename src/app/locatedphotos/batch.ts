@@ -7,22 +7,13 @@ export class PhotosBatch {
     protected _currentNames: Set<String>;
 
     constructor(photos: ObservableArray<PhotoAtLocation>, nextUrl: string) {
-        this._photos = photos;
-        this._nextUrl = nextUrl;
+        this._photos = new ObservableArray<PhotoAtLocation>();
         this._currentNames = new Set<String>();
-        photos.forEach(value => this._currentNames.add(value.photo.name));
+        this.updatePhotos(photos, nextUrl);
     }
 
     update(other: PhotosBatch) {
-        this.nextUrl = other.nextUrl
-        let index = this.photos.length;
-        other.photos
-            .filter(value => !this._currentNames.has(value.photo.name))
-            .forEach((value => {
-                this._currentNames.add(value.photo.name);
-                this.photos.push(
-                    new PhotoAtLocation(value.location, value.photo, index++))
-            }));
+        this.updatePhotos(other.photos, other.nextUrl);
     }
 
     get photos(): ObservableArray<PhotoAtLocation> {
@@ -39,5 +30,17 @@ export class PhotosBatch {
 
     get length() {
         return this._photos.length;
+    }
+
+    private updatePhotos(photos: ObservableArray<PhotoAtLocation>, nextUrl: string) {
+        this.nextUrl = nextUrl;
+        let index = this.photos.length;
+        photos
+            .filter(value => !this._currentNames.has(value.photo.name))
+            .forEach((value => {
+                this._currentNames.add(value.photo.name);
+                this.photos.push(
+                    new PhotoAtLocation(value.location, value.photo, index++))
+            }));
     }
 }

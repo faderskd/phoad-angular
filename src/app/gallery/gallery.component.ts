@@ -6,7 +6,7 @@ import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listvi
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
 import {alert} from "@nativescript/core/ui/dialogs";
 import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
-import {ScrolledGallery} from "~/app/gallery/gallery";
+import {SlidingGallery} from "~/app/gallery/gallery";
 import {PhotosBatchParser} from "~/app/locatedphotos/photosbatchparser";
 import {Authentication} from "~/app/common/authentication";
 import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
@@ -24,7 +24,7 @@ export class GalleryComponent implements AfterViewInit {
     private _radListView: RadListView;
     private _authenticationEnsurer: AuthenticationEnsurer;
 
-    gallery: ScrolledGallery;
+    gallery: SlidingGallery;
     @ViewChild(RadListViewComponent, {static: false})
     radListViewComponent: RadListViewComponent;
 
@@ -34,7 +34,7 @@ export class GalleryComponent implements AfterViewInit {
         this._modalDialogService = modalDialogService;
         this._vcRef = vcRef;
         this._client = client;
-        this.gallery = ScrolledGallery.empty();
+        this.gallery = SlidingGallery.empty();
         this._authenticationEnsurer = new AuthenticationEnsurer(authentication, routerExtensions);
     }
 
@@ -64,7 +64,7 @@ export class GalleryComponent implements AfterViewInit {
     private async loadMorePhotos(event: LoadOnDemandListViewEventData) {
         let response = await this._client.getChronologicalGalleryViaUrl(this.gallery.nextUrl);
         await this._authenticationEnsurer.ensureAuthenticated(response);
-        let nextGallery = ScrolledGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
+        let nextGallery = SlidingGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
         this.gallery.update(nextGallery);
         event.returnValue = true;
         this._radListView.notifyLoadOnDemandFinished(false);
@@ -93,7 +93,7 @@ export class GalleryComponent implements AfterViewInit {
         try {
             let response = await this._client.getChronologicalGallery();
             await this._authenticationEnsurer.ensureAuthenticated(response);
-            this.gallery = ScrolledGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
+            this.gallery = SlidingGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
         } catch (err) {
             console.dir(err);
             await alert("Sorry something gone wrong :( Please try again...")

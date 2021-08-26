@@ -24,7 +24,7 @@ export class GalleryModalComponent implements AfterViewInit {
     private modalContent2: ModalContent
 
     constructor(private params: ModalDialogParams) {
-        this.currentGalleryImage = this.params.context.gallery.photos[this.params.context.currentPhotoIndex];
+        this.currentGalleryImage = params.context.gallery.photos.getItem(params.context.currentPhotoIndex);
         this.screenWidth = Screen.mainScreen.widthDIPs;
     }
 

@@ -1,31 +1,43 @@
 import {Location} from "../locatedphotos/location";
 import {PhotosBatchParser} from "../locatedphotos/photosbatchparser";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {MapboxView} from "@nativescript-community/ui-mapbox";
+import {MapboxMarker, MapboxView} from "@nativescript-community/ui-mapbox";
 import {LatLng} from "@nativescript-community/ui-mapbox/mapbox.common";
-import {PhotoAtLocation} from "../locatedphotos/photos";
 import {PhotosBatch} from "../locatedphotos/batch";
-import {ObservableArray} from "@nativescript/core";
 import {ServerClient} from "../common/http";
 import {Configuration} from "~/app/config/Configuration";
 import * as _ from "lodash";
 import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
+import {ModalDialogService} from "@nativescript/angular";
+import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
+import {ViewContainerRef} from "@angular/core";
+import {MarkersCleaner} from "~/app/home/markerscleaner";
+import {LocationAwarePhotosBatch} from "~/app/home/locationawarephotosbatch";
+import {SlidingGallery} from "~/app/gallery/gallery";
+import {HttpResponse} from "@nativescript/core/http";
 
 export class MapboxManager {
     private readonly _client: ServerClient;
-    private _photosBatch: PhotosBatch;
+    private _photosBatch: LocationAwarePhotosBatch;
     private _config: Configuration;
     private _mapboxView: MapboxView;
     private _currentMarkersNames: Set<String>;
     private _authenticationEnsurer: AuthenticationEnsurer;
+    private _modalDialogService: ModalDialogService;
+    private _vcRef: ViewContainerRef;
+    private _markersCleaner: MarkersCleaner;
 
     constructor(client: ServerClient, config: Configuration, mapboxView: MapboxView,
-                authenticationEnsurer: AuthenticationEnsurer) {
+                authenticationEnsurer: AuthenticationEnsurer, modalDialogService: ModalDialogService,
+                vcRef: ViewContainerRef) {
         this._client = client;
         this._config = config;
         this._mapboxView = mapboxView;
         this._currentMarkersNames = new Set<String>();
         this._authenticationEnsurer = authenticationEnsurer;
+        this._modalDialogService = modalDialogService;
+        this._vcRef = vcRef;
+        this._markersCleaner = new MarkersCleaner(config);
     }
 
     async initMapbox(currentLocation: Location) {
@@ -69,7 +81,7 @@ export class MapboxManager {
         try {
             let response = await this.getPhotosBasedOnLocation(currentLocation);
             let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
-            this._photosBatch = photosBatch;
+            this._photosBatch = LocationAwarePhotosBatch.fromBasicBatch(photosBatch);
             await this.addMarkers(photosBatch);
         } catch (err) {
             console.log(err);
@@ -77,7 +89,7 @@ export class MapboxManager {
         }
     }
 
-    private async getPhotosBasedOnLocation(location: Location) {
+    private async getPhotosBasedOnLocation(location: Location): Promise<HttpResponse> {
         let response = await this._client.getPhotosBasedOnLocation(location);
         await this._authenticationEnsurer.ensureAuthenticated(response);
         return response;
@@ -90,40 +102,11 @@ export class MapboxManager {
     }
 
     private async removeOutermostLocatedPhotos(location: Location) {
-        let garbageCollectedBatches = this.extractSurvivorAndDeleteBatches(location);
-        this._photosBatch = garbageCollectedBatches.survivedBatch;
+        let garbageCollectedBatches = this._markersCleaner.extractSurvivorAndDeleteBatches(location, this._photosBatch);
+        this._photosBatch = LocationAwarePhotosBatch.fromBasicBatch(garbageCollectedBatches.survivedBatch);
         let removedMarkersNames = garbageCollectedBatches.deleteBatch.photos.map(locatedPhoto => locatedPhoto.photo.name);
         removedMarkersNames.forEach(id => this._currentMarkersNames.delete(id));
         await this._mapboxView.removeMarkers(removedMarkersNames);
-    }
-
-    private extractSurvivorAndDeleteBatches(location: Location): GarbageCollectedBatches {
-        let photosWithDistance = this.photosSortedByDistanceFromLocation(location);
-        let deletedPhotos = photosWithDistance.splice(this._config.mapMarkersLimit)
-            .map((photoWithDistance, index) =>
-                new PhotoAtLocation(
-                    photoWithDistance.photoAtLocation.location,
-                    photoWithDistance.photoAtLocation.photo,
-                    index));
-        let survivedPhotos = photosWithDistance.map((photoWithDistance, index) =>
-            new PhotoAtLocation(
-                photoWithDistance.photoAtLocation.location,
-                photoWithDistance.photoAtLocation.photo,
-                index));
-
-        return new GarbageCollectedBatches(
-            new PhotosBatch(new ObservableArray<PhotoAtLocation>(survivedPhotos), null),
-            new PhotosBatch(new ObservableArray<PhotoAtLocation>(deletedPhotos), null));
-    }
-
-    private photosSortedByDistanceFromLocation(location: Location) {
-        return this._photosBatch.photos.map(locatedPhoto => {
-            let longDiff = locatedPhoto.location.longitude - location.longitude;
-            let latDiff = locatedPhoto.location.latitude - location.latitude;
-            let distance = Math.sqrt(Math.pow(longDiff, 2) + Math.pow(latDiff, 2));
-            return new LocatedPhotoWithDistance(distance, locatedPhoto);
-        })
-            .sort(((a: LocatedPhotoWithDistance, b: LocatedPhotoWithDistance) => a.distance - b.distance));
     }
 
     private async addMarkers(photosBatch: PhotosBatch) {
@@ -134,47 +117,30 @@ export class MapboxManager {
                     id: value.photo.name,
                     lat: value.location.latitude,
                     lng: value.location.longitude,
-                    title: value.photo.name
+                    title: value.photo.name,
+                    onTap: async (marker: MapboxMarker) => {
+                        await this.markerClickedCallback(marker);
+                    }
                 }
             });
         markers.forEach(value => this._currentMarkersNames.add(value.id));
         await this._mapboxView.addMarkers(markers);
     }
-}
 
-
-class LocatedPhotoWithDistance {
-    private readonly _distance: number;
-    private readonly _photoAtLocation: PhotoAtLocation;
-
-    constructor(distance: number, photoAtLocation: PhotoAtLocation) {
-        this._distance = distance;
-        this._photoAtLocation = photoAtLocation;
+    private async markerClickedCallback(marker: MapboxMarker) {
+        let location = new Location(marker.lat, marker.lng, new Date().toISOString());
+        await this.showModal(this._photosBatch.findByLocation(location));
     }
 
-    get photoAtLocation(): PhotoAtLocation {
-        return this._photoAtLocation;
-    }
-
-    get distance(): number {
-        return this._distance;
-    }
-}
-
-class GarbageCollectedBatches {
-    private readonly _survivedBatch;
-    private readonly _deleteBatch;
-
-    constructor(survivedBatch: PhotosBatch, deletedBatch: PhotosBatch) {
-        this._survivedBatch = survivedBatch;
-        this._deleteBatch = deletedBatch;
-    }
-
-    get survivedBatch(): PhotosBatch {
-        return this._survivedBatch;
-    }
-
-    get deleteBatch(): PhotosBatch {
-        return this._deleteBatch;
+    private async showModal(gallery: SlidingGallery) {
+        let options = {
+            context: {
+                currentPhotoIndex: 0,
+                gallery: gallery
+            },
+            fullscreen: false,
+            viewContainerRef: this._vcRef
+        };
+        await this._modalDialogService.showModal(GalleryModalComponent, options);
     }
 }

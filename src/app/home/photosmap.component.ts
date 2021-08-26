@@ -1,6 +1,6 @@
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {ServerClient} from "~/app/common/http";
-import {RouterExtensions, registerElement} from "@nativescript/angular";
+import {RouterExtensions, registerElement, ModalDialogService} from "@nativescript/angular";
 import {RadSideDrawerComponent} from "nativescript-ui-sidedrawer/angular";
 import {RadSideDrawer} from "nativescript-ui-sidedrawer";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
@@ -37,6 +37,8 @@ export class PhotosMapComponent implements AfterViewInit {
     private _config: Configuration;
     private _mapboxManager: MapboxManager;
     private _authenticationEnsurer: AuthenticationEnsurer;
+    private _modalDialogService: ModalDialogService;
+    private _vcRef: ViewContainerRef
 
     processing: boolean = false
 
@@ -45,7 +47,8 @@ export class PhotosMapComponent implements AfterViewInit {
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService, config: Configuration,
-                auth: Authentication, locationService: LocationService) {
+                auth: Authentication, locationService: LocationService,
+                modalDialogService: ModalDialogService, vcRef: ViewContainerRef) {
         this._client = client;
         this._routerExtensions = routerExtensions;
         this._locationService = locationService;
@@ -53,6 +56,8 @@ export class PhotosMapComponent implements AfterViewInit {
         this._photosManager = new PhotosManager(config, locationService);
         this._config = config;
         this._authenticationEnsurer = new AuthenticationEnsurer(auth, routerExtensions);
+        this._modalDialogService = modalDialogService;
+        this._vcRef = vcRef;
     }
 
     async ngAfterViewInit() {
@@ -98,7 +103,8 @@ export class PhotosMapComponent implements AfterViewInit {
     async onMapReady($event: any) {
         let currentLocation = await this._locationService.getLocation();
         let mapboxView = $event.map;
-        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView, this._authenticationEnsurer);
+        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView,
+            this._authenticationEnsurer, this._modalDialogService, this._vcRef);
         await this._mapboxManager.initMapbox(currentLocation);
     }
 }
