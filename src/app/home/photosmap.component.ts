@@ -1,18 +1,23 @@
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {ServerClient} from "~/app/common/http";
-import {RouterExtensions} from "@nativescript/angular";
+import {RouterExtensions, registerElement, ModalDialogService} from "@nativescript/angular";
 import {RadSideDrawerComponent} from "nativescript-ui-sidedrawer/angular";
 import {RadSideDrawer} from "nativescript-ui-sidedrawer";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import * as geolocation from "@nativescript/geolocation";
 import * as camera from "@nativescript/camera";
-import {knownFolders} from "@nativescript/core/file-system";
 import {Configuration} from "~/app/config/Configuration";
 import {Authentication} from "~/app/common/authentication";
-import {PhotosManager, PhotosManagerSettings} from "~/app/home/photosmanager";
+import {PhotosManager} from "~/app/home/photosmanager";
 import {PhotosUploader} from "~/app/home/photosuploader";
 import {ErrorEventData, ResultEventData} from "@nativescript/background-http";
 import {alert} from "@nativescript/core/ui/dialogs";
+import {LocationService} from "~/app/home/locationservice";
+import {Location} from "~/app/locatedphotos/location";
+import {MapboxManager} from "~/app/home/mapboxmanager";
+import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
+
+registerElement("Mapbox", () => require("@nativescript-community/ui-mapbox").MapboxView);
 
 
 @Component({
@@ -20,28 +25,20 @@ import {alert} from "@nativescript/core/ui/dialogs";
     styleUrls: ["../styles/common.style.scss", '../styles/sidemenu.style.scss']
 })
 export class PhotosMapComponent implements AfterViewInit {
-    private _client: ServerClient;
-    private _routerExtensions: RouterExtensions;
-    private _drawer: RadSideDrawer;
-
-    private GEOLOCATION_TIMEOUT = 20000;
-    private GEOLOCATION_MAX_AGE = 1000;
-
-    private PHOTO_WIDTH = 200;
-    private PHOTO_HEIGHT = 200;
-    private PHOTO_SAVE_DIR = "saved_images";
-    private PHOTO_SAVE_PATH = knownFolders.currentApp().path + `/${this.PHOTO_SAVE_DIR}`;
     private PHOTO_UPLOAD_URL = "/api/v1/photos/";
 
-    private _photosManager = new PhotosManager(
-        new PhotosManagerSettings(
-            this.PHOTO_WIDTH,
-            this.PHOTO_HEIGHT,
-            this.GEOLOCATION_MAX_AGE,
-            this.GEOLOCATION_TIMEOUT,
-            this.PHOTO_SAVE_PATH
-        ))
-    private _photosUploader: PhotosUploader
+    private _client: ServerClient;
+    private _photosManager: PhotosManager
+    private _routerExtensions: RouterExtensions;
+    private _drawer: RadSideDrawer;
+    private _photosUploader: PhotosUploader;
+    private _locationService: LocationService;
+    private _currentLocation: Location;
+    private _config: Configuration;
+    private _mapboxManager: MapboxManager;
+    private _authenticationEnsurer: AuthenticationEnsurer;
+    private _modalDialogService: ModalDialogService;
+    private _vcRef: ViewContainerRef
 
     processing: boolean = false
 
@@ -50,16 +47,24 @@ export class PhotosMapComponent implements AfterViewInit {
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService, config: Configuration,
-                auth: Authentication) {
+                auth: Authentication, locationService: LocationService,
+                modalDialogService: ModalDialogService, vcRef: ViewContainerRef) {
         this._client = client;
         this._routerExtensions = routerExtensions;
+        this._locationService = locationService;
         this._photosUploader = new PhotosUploader(config.getServerUrl() + this.PHOTO_UPLOAD_URL, auth);
+        this._photosManager = new PhotosManager(config, locationService);
+        this._config = config;
+        this._authenticationEnsurer = new AuthenticationEnsurer(auth, routerExtensions);
+        this._modalDialogService = modalDialogService;
+        this._vcRef = vcRef;
     }
 
     async ngAfterViewInit() {
         this._drawer = this._drawerComponent.sideDrawer;
         await geolocation.enableLocationRequest();
         await camera.requestPermissions();
+        this._currentLocation = await this._locationService.getLocation();
     }
 
     toggleDrawer() {
@@ -93,5 +98,13 @@ export class PhotosMapComponent implements AfterViewInit {
             console.dir(err);
             await alert("Sorry something gone wrong :( Please try again...")
         }
+    }
+
+    async onMapReady($event: any) {
+        let currentLocation = await this._locationService.getLocation();
+        let mapboxView = $event.map;
+        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView,
+            this._authenticationEnsurer, this._modalDialogService, this._vcRef);
+        await this._mapboxManager.initMapbox(currentLocation);
     }
 }

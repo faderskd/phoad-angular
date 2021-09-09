@@ -1,28 +1,6 @@
-export class Location {
-    private readonly _latitude: number
-    private readonly _longitude: number
-    private readonly _timestamp: string
+import {Location} from "~/app/locatedphotos/location";
 
-    constructor(latitude: number, longitude: number, timestamp: string) {
-        this._latitude = latitude;
-        this._longitude = longitude;
-        this._timestamp = timestamp
-    }
-
-    get longitude(): number {
-        return this._longitude;
-    }
-
-    get timestamp(): string {
-        return this._timestamp;
-    }
-
-    get latitude(): number {
-        return this._latitude;
-    }
-}
-
-export class Photo {
+export class PhotoFile {
     private readonly _filePath: string
     private readonly _name: string
 
@@ -40,17 +18,16 @@ export class Photo {
     }
 }
 
-export class PhotoAtLocation {
-    private _location: Location
-    private _photo: Photo
+export class PhotoCapturedAtLocation {
+    private readonly _location: Location
+    private readonly _photo: PhotoFile
 
-    constructor(location: Location, photo: Photo) {
+    constructor(location: Location, photo: PhotoFile) {
         this._location = location;
         this._photo = photo;
     }
 
-
-    get photo(): Photo {
+    get photo(): PhotoFile {
         return this._photo;
     }
 

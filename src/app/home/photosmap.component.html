@@ -42,6 +42,23 @@
     <StackLayout tkMainContent>
         <GridLayout rows="auto *">
             <ActivityIndicator color="green" [busy]="processing"></ActivityIndicator>
+            <ContentView height="100%" width="100%">
+                <Mapbox
+                        accessToken="pk.eyJ1IjoiZGFuaWVsaGFraXIiLCJhIjoiY2toOTJjejZ3MHE4ZjJ3bnFsemtldmhlMiJ9.5rqqyEKlcEBfeu4MZe6hMw"
+                        mapStyle="traffic_day"
+                        zoomLevel="13"
+                        delay="10"
+                        showUserLocation="true"
+                        hideCompass="false"
+                        hideAttribution="false"
+                        hideLogo="false"
+                        disableZoom="false"
+                        disableRotation="false"
+                        disableScroll="false"
+                        disableTilt="false"
+                        (mapReady)="onMapReady($event)">
+                </Mapbox>
+            </ContentView>
         </GridLayout>
     </StackLayout>
 </RadSideDrawer>

@@ -2,7 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {ServerClient} from "~/app/common/http";
 import {HttpResponse, Page} from "@nativescript/core";
-import {UserCredentials} from "../common/user-credentials";
+import {UserCredentials} from "../common/usercredentials";
 import {RouterExtensions} from "@nativescript/angular";
 import {Authentication} from "~/app/common/authentication";
 import {alert} from "@nativescript/core/ui/dialogs";
@@ -101,13 +101,13 @@ export class LoginComponent implements OnInit {
             this.auth.authenticate(response.content.toJSON()['token'])
             await this.routerExtensions.navigateByUrl('/home');
         } else if (response.statusCode === 400) {
-            this.handleErrors(response.content.toJSON());
+            LoginComponent.handleErrors(response.content.toJSON());
         } else {
             throw new Error("Unexpected status code " + response.statusCode);
         }
     }
 
-    private handleErrors(errors: object) {
+    private static handleErrors(errors: object) {
         if (errors['non_field_errors']) {
             alert(errors['non_field_errors'])
         } else {

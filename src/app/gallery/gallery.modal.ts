@@ -4,18 +4,17 @@ import {SwipeDirection} from "@nativescript/core/ui/gestures/gestures-common";
 import {Animation, ContentView, Image} from "@nativescript/core";
 import {Screen} from "@nativescript/core/platform";
 import {AnimationDefinition} from "@nativescript/core/ui/animation/animation-interfaces";
-import {GalleryPhotoAtLocation} from "~/app/gallery/gallery";
+import {PhotoAtLocation} from "~/app/locatedphotos/photos";
 
 @Component({
     selector: "phoad-modal",
-    templateUrl: "gallery.modal.html",
-    styleUrls: ["../styles/common.style.scss", "gallery.modal.css"]
+    templateUrl: "gallery.modal.html"
 })
 export class GalleryModalComponent implements AfterViewInit {
-    private currentGalleryImage: GalleryPhotoAtLocation
+    currentGalleryImage: PhotoAtLocation
+
     private currentModalContent: number = 1
     private readonly screenWidth: number
-
     @ViewChild('galleryModalContent1', {static: false}) contentElement1: ElementRef;
     @ViewChild('galleryModalContent2', {static: false}) contentElement2: ElementRef;
     @ViewChild('galleryModalImage1', {static: false}) contentImageElement1: ElementRef;
@@ -24,7 +23,7 @@ export class GalleryModalComponent implements AfterViewInit {
     private modalContent2: ModalContent
 
     constructor(private params: ModalDialogParams) {
-        this.currentGalleryImage = this.params.context.gallery.photos[this.params.context.currentPhotoIndex];
+        this.currentGalleryImage = params.context.gallery.photos.getItem(params.context.currentPhotoIndex);
         this.screenWidth = Screen.mainScreen.widthDIPs;
     }
 

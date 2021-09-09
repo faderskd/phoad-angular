@@ -13,14 +13,14 @@ export class ServerClient {
     private USERS_ENDPOINT = "/api/v1/users/";
     private AUTHENTICATION_ENDPOINT = "/api-token-auth/";
     private PHOTOS_ENDPOINT = "/api/v1/photos/";
-
+    private PHOTOS_AT_LOCATION_ENDPOINT = "/api/v1/photos-at-location/";
 
     public constructor(config: Configuration, auth: Authentication) {
         this._serverUrl = config.getServerUrl();
         this._auth = auth;
     }
 
-    async registerUser(newUser: any) {
+    async registerUser(newUser: any): Promise<HttpResponse> {
         return await request({
             url: this._serverUrl + this.USERS_ENDPOINT,
             method: "POST",
@@ -32,7 +32,7 @@ export class ServerClient {
         });
     }
 
-    async loginUser(user: any) {
+    async loginUser(user: any): Promise<HttpResponse> {
         return await request({
             url: this._serverUrl + this.AUTHENTICATION_ENDPOINT,
             method: "POST",
@@ -41,6 +41,17 @@ export class ServerClient {
                 "username": user.email,
                 "password": user.password
             })
+        })
+    }
+
+    async getPhotosBasedOnLocation(location: any): Promise<HttpResponse> {
+        return await request({
+            url: this._serverUrl + this.PHOTOS_AT_LOCATION_ENDPOINT +
+                `?latitude=${location.latitude}&longitude=${location.longitude}`,
+            headers: {
+                "Authorization": `Token ${this._auth.token}`
+            },
+            method: "GET"
         })
     }
 

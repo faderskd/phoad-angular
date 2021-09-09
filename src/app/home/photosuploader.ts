@@ -1,4 +1,4 @@
-import {PhotoAtLocation} from "./photos";
+import {PhotoCapturedAtLocation} from "./photos";
 import {
     session,
     Task
@@ -14,7 +14,7 @@ export class PhotosUploader {
         this._auth = auth;
     }
 
-    uploadPhoto(photoAtLocation: PhotoAtLocation): Task {
+    uploadPhoto(photoAtLocation: PhotoCapturedAtLocation): Task {
         let imageUploadSession = session("phoad-image-upload");
         let request = {
             url: this._photoUploadUrl,
