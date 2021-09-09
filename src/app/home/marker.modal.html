@@ -1,0 +1,17 @@
+<FlexboxLayout class="dialog-wrapper" (swipe)="swipeDispatch($event)">
+    <GridLayout rows="*, 6*">
+        <GridLayout row="0" class="modal-title">
+            <label text="{{currentGalleryImage.location.getHumanReadableTimestamp()}}"></label>
+        </GridLayout>
+        <GridLayout row="1">
+            <ContentView #galleryModalContent1>
+                <Image #galleryModalImage1 src="" class="gallery-photo"
+                       stretch="aspectFill"></Image>
+            </ContentView>
+            <ContentView #galleryModalContent2>
+                <Image #galleryModalImage2 src="" class="gallery-photo"
+                       stretch="aspectFill"></Image>
+            </ContentView>
+        </GridLayout>
+    </GridLayout>
+</FlexboxLayout>

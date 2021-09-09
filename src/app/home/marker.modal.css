@@ -1,0 +1,11 @@
+.dialog-wrapper {
+    border-width: 1 0 1 0;
+    border-color: black;
+    width: 100%;
+    margin-top: 100;
+}
+
+.modal-title {
+    text-align: center;
+}
+

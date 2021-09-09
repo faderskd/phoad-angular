@@ -14,6 +14,7 @@ import {TNSFontIconModule} from "nativescript-ngx-fonticon";
 import {registerElement} from "@nativescript/angular";
 import {GalleryComponent} from "~/app/gallery/gallery.component";
 import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
+import {MarkerModalComponent} from "~/app/home/marker-modal.component";
 
 
 registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanager").PreviousNextView);
@@ -40,6 +41,7 @@ registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanag
         PhotosMapComponent,
         GalleryComponent,
         GalleryModalComponent,
+        MarkerModalComponent
     ],
     providers: [
         ModalDialogService

@@ -9,12 +9,12 @@ import {Configuration} from "~/app/config/Configuration";
 import * as _ from "lodash";
 import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
 import {ModalDialogService} from "@nativescript/angular";
-import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
 import {ViewContainerRef} from "@angular/core";
 import {MarkersCleaner} from "~/app/home/markerscleaner";
 import {LocationAwarePhotosBatch} from "~/app/home/locationawarephotosbatch";
 import {SlidingGallery} from "~/app/gallery/gallery";
 import {HttpResponse} from "@nativescript/core/http";
+import {MarkerModalComponent} from "~/app/home/marker-modal.component";
 
 export class MapboxManager {
     private readonly _client: ServerClient;
@@ -117,7 +117,6 @@ export class MapboxManager {
                     id: value.photo.name,
                     lat: value.location.latitude,
                     lng: value.location.longitude,
-                    title: value.photo.name,
                     onTap: async (marker: MapboxMarker) => {
                         await this.markerClickedCallback(marker);
                     }
@@ -141,6 +140,6 @@ export class MapboxManager {
             fullscreen: false,
             viewContainerRef: this._vcRef
         };
-        await this._modalDialogService.showModal(GalleryModalComponent, options);
+        await this._modalDialogService.showModal(MarkerModalComponent, options);
     }
 }

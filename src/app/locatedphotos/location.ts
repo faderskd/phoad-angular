@@ -17,6 +17,10 @@ export class Location {
         return this._timestamp;
     }
 
+    getHumanReadableTimestamp(): string {
+        return this.timestamp.substring(0, 10);
+    }
+
     get latitude(): number {
         return this._latitude;
     }

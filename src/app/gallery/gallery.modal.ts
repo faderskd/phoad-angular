@@ -8,14 +8,13 @@ import {PhotoAtLocation} from "~/app/locatedphotos/photos";
 
 @Component({
     selector: "phoad-modal",
-    templateUrl: "gallery.modal.html",
-    styleUrls: ["../styles/common.style.scss", "gallery.modal.css"]
+    templateUrl: "gallery.modal.html"
 })
 export class GalleryModalComponent implements AfterViewInit {
-    private currentGalleryImage: PhotoAtLocation
+    currentGalleryImage: PhotoAtLocation
+
     private currentModalContent: number = 1
     private readonly screenWidth: number
-
     @ViewChild('galleryModalContent1', {static: false}) contentElement1: ElementRef;
     @ViewChild('galleryModalContent2', {static: false}) contentElement2: ElementRef;
     @ViewChild('galleryModalImage1', {static: false}) contentImageElement1: ElementRef;
