@@ -2,7 +2,7 @@ import * as geolocation from "@nativescript/geolocation";
 import {Accuracy} from "@nativescript/core/ui/enums";
 import {Injectable} from "@angular/core";
 import {Configuration} from "~/app/config/Configuration";
-import {Location} from "~/app/locatedphotos/location";
+import {Location, LocationWithTime} from "~/app/locatedphotos/location";
 
 @Injectable({
     providedIn: "root"
@@ -18,6 +18,11 @@ export class LocationService {
                 maximumAge: this._config.geolocationMaxAge,
                 timeout: this._config.geolocationTimeout
             });
-        return new Location(location.latitude, location.longitude, new Date().toISOString());
+        return new Location(location.latitude, location.longitude);
+    }
+
+    async getLocationWithTime(): Promise<LocationWithTime> {
+        let location = await this.getLocation();
+        return new LocationWithTime(location, new Date().toISOString());
     }
 }

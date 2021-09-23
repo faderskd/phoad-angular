@@ -1,32 +1,34 @@
-import {ServerClient} from "~/app/common/http";
+import {ServerClient} from "../../common/http/httpclient";
 import {ModalDialogService, RouterExtensions} from "@nativescript/angular";
 import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
 import {LoadOnDemandListViewEventData, RadListView} from "nativescript-ui-listview";
 import {RadListViewComponent} from "nativescript-ui-listview/angular";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
-import {SlidingGallery} from "~/app/gallery/gallery";
-import {PhotosBatchParser} from "~/app/locatedphotos/photosbatchparser";
-import {Authentication} from "~/app/common/authentication";
-import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
+import {GalleryModalComponent} from "./gallery.modal";
+import {SlidingGallery} from "./gallery";
+import {PhotosBatchParser} from "../../locatedphotos/photosbatchparser";
+import {Authentication} from "../../common/auth/authentication";
+import {AuthenticationEnsurer} from "../../common/auth/responsehandlers";
 
 
 @Component({
-    templateUrl: "./gallery.component.html",
-    styleUrls: ["../styles/common.style.scss", "gallery.component.css"]
+    templateUrl: "../templates/gallery.component.html",
+    styleUrls: ["../../styles/common.style.scss", "../templates/gallery.component.css"]
 })
 export class GalleryComponent implements AfterViewInit {
     private readonly _client: ServerClient;
+    private readonly _modalDialogService: ModalDialogService;
+    private readonly _vcRef: ViewContainerRef;
+
     private _initialized: boolean = false;
-    private _modalDialogService: ModalDialogService;
-    private _vcRef: ViewContainerRef
     private _radListView: RadListView;
     private _authenticationEnsurer: AuthenticationEnsurer;
 
-    gallery: SlidingGallery;
     @ViewChild(RadListViewComponent, {static: false})
-    radListViewComponent: RadListViewComponent;
+    private radListViewComponent: RadListViewComponent;
+
+    gallery: SlidingGallery;
 
     constructor(client: ServerClient, routerExtensions: RouterExtensions,
                 fontIconService: TNSFontIconService, modalDialogService: ModalDialogService,
@@ -52,13 +54,27 @@ export class GalleryComponent implements AfterViewInit {
         } else if (this.gallery.nextUrl) {
             await this.loadMorePhotos(event);
         } else {
-            this.photosLoadingFinished(event);
+            this.stopLoadingMorePhotos(event);
         }
     }
 
-    private photosLoadingFinished(event: LoadOnDemandListViewEventData) {
-        event.returnValue = false;
-        this._radListView.notifyLoadOnDemandFinished(true);
+    private async initComponent(event: LoadOnDemandListViewEventData) {
+        await this.initGallery();
+        this._initialized = true;
+        let loadMoreItemsEnabled = this.gallery.nextUrl != null;
+        event.returnValue = loadMoreItemsEnabled;
+        this._radListView.notifyLoadOnDemandFinished(!loadMoreItemsEnabled);
+    }
+
+    private async initGallery(): Promise<void> {
+        try {
+            let response = await this._client.getChronologicalGallery();
+            await this._authenticationEnsurer.ensureAuthenticated(response);
+            this.gallery = SlidingGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
+        } catch (err) {
+            console.dir(err);
+            await alert("Sorry something gone wrong :( Please try again...")
+        }
     }
 
     private async loadMorePhotos(event: LoadOnDemandListViewEventData) {
@@ -66,15 +82,17 @@ export class GalleryComponent implements AfterViewInit {
         await this._authenticationEnsurer.ensureAuthenticated(response);
         let nextGallery = SlidingGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
         this.gallery.update(nextGallery);
-        event.returnValue = true;
-        this._radListView.notifyLoadOnDemandFinished(false);
+        this.continueLoadingPhotos(event);
     }
 
-    private async initComponent(event: LoadOnDemandListViewEventData) {
-        await this.initGallery();
-        this._initialized = true;
-        event.returnValue = this.gallery.nextUrl != null;
-        this._radListView.notifyLoadOnDemandFinished(this.gallery.nextUrl == null);
+    private stopLoadingMorePhotos(event: LoadOnDemandListViewEventData) {
+        event.returnValue = false;
+        this._radListView.notifyLoadOnDemandFinished(true);
+    }
+
+    private continueLoadingPhotos(event: LoadOnDemandListViewEventData) {
+        event.returnValue = true;
+        this._radListView.notifyLoadOnDemandFinished(false);
     }
 
     private async showModal(index: number) {
@@ -87,16 +105,5 @@ export class GalleryComponent implements AfterViewInit {
             viewContainerRef: this._vcRef
         };
         await this._modalDialogService.showModal(GalleryModalComponent, options);
-    }
-
-    private async initGallery(): Promise<void> {
-        try {
-            let response = await this._client.getChronologicalGallery();
-            await this._authenticationEnsurer.ensureAuthenticated(response);
-            this.gallery = SlidingGallery.fromPhotosBatch(PhotosBatchParser.parse(response.content.toJSON()));
-        } catch (err) {
-            console.dir(err);
-            await alert("Sorry something gone wrong :( Please try again...")
-        }
     }
 }

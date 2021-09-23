@@ -6,8 +6,8 @@ import {Injectable} from "@angular/core";
     providedIn: "root"
 })
 export class Authentication {
-    private _token: string
-    private _storage = new SecureStorage()
+    private _token: string;
+    private readonly _storage: SecureStorage;
 
     constructor() {
         this._storage = new SecureStorage();
@@ -23,15 +23,6 @@ export class Authentication {
         return this._token !== null && !_.isEmpty(this._token);
     }
 
-    loadAuthentication(): void {
-        let token = this._storage.getSync({
-            key: "token"
-        });
-        if (token !== null) {
-            this._token = token;
-        }
-    }
-
     authenticate(token: string): void {
         this._storage.setSync({
             key: "token",
@@ -45,5 +36,14 @@ export class Authentication {
             key: "token"
         });
         this._token = null;
+    }
+
+    private loadAuthentication(): void {
+        let token = this._storage.getSync({
+            key: "token"
+        });
+        if (token !== null) {
+            this._token = token;
+        }
     }
 }

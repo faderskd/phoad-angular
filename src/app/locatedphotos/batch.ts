@@ -40,7 +40,7 @@ export class PhotosBatch {
             .forEach((value => {
                 this._currentNames.add(value.photo.name);
                 this.photos.push(
-                    new PhotoAtLocation(value.location, value.photo, index++))
+                    new PhotoAtLocation(value.locationWithTime, value.photo, index++))
             }));
     }
 }

@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {UserCredentials} from "~/app/common/usercredentials";
-import {ServerClient} from "~/app/common/http";
+import {UserCredentialsDto} from "~/app/common/auth/dto";
+import {ServerClient} from "~/app/common/http/httpclient";
 import {HttpResponse, Page} from "@nativescript/core";
 import {alert} from "@nativescript/core/ui/dialogs";
 import {RouterExtensions} from "@nativescript/angular";
@@ -34,7 +34,7 @@ export class RegisterComponent {
         if (this.validateForm()) {
             let email = this.registerForm.get('email').value;
             let password = this.registerForm.get('password').value;
-            let newUser = new UserCredentials(email, password);
+            let newUser = new UserCredentialsDto(email, password);
             try {
                 let response = await this.client.registerUser(newUser);
                 await this.handleResponse(response);

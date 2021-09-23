@@ -1,11 +1,11 @@
-import {Location} from "../locatedphotos/location";
-import {PhotoAtLocation} from "../locatedphotos/photos";
-import {PhotosBatch} from "../locatedphotos/batch";
+import {Location} from "~/app/locatedphotos/location";
+import {PhotoAtLocation} from "~/app/locatedphotos/photos";
+import {PhotosBatch} from "~/app/locatedphotos/batch";
 import {ObservableArray} from "@nativescript/core";
-import {Configuration} from "../config/Configuration";
+import {Configuration} from "~/app/config/Configuration";
 
 export class MarkersCleaner {
-    private _config: Configuration;
+    private readonly _config: Configuration;
 
     constructor(config: Configuration) {
         this._config = config;
@@ -16,12 +16,12 @@ export class MarkersCleaner {
         let deletedPhotos = photosWithDistance.splice(this._config.mapMarkersLimit)
             .map((photoWithDistance, index) =>
                 new PhotoAtLocation(
-                    photoWithDistance.photoAtLocation.location,
+                    photoWithDistance.photoAtLocation.locationWithTime,
                     photoWithDistance.photoAtLocation.photo,
                     index));
         let survivedPhotos = photosWithDistance.map((photoWithDistance, index) =>
             new PhotoAtLocation(
-                photoWithDistance.photoAtLocation.location,
+                photoWithDistance.photoAtLocation.locationWithTime,
                 photoWithDistance.photoAtLocation.photo,
                 index));
 
@@ -32,8 +32,8 @@ export class MarkersCleaner {
 
     private photosSortedByDistanceFromLocation(location: Location, photosBatch: PhotosBatch) {
         return photosBatch.photos.map(locatedPhoto => {
-            let longDiff = locatedPhoto.location.longitude - location.longitude;
-            let latDiff = locatedPhoto.location.latitude - location.latitude;
+            let longDiff = locatedPhoto.locationWithTime.location.longitude - location.longitude;
+            let latDiff = locatedPhoto.locationWithTime.location.latitude - location.latitude;
             let distance = Math.sqrt(Math.pow(longDiff, 2) + Math.pow(latDiff, 2));
             return new LocatedPhotoWithDistance(distance, locatedPhoto);
         })
@@ -62,18 +62,18 @@ class LocatedPhotoWithDistance {
 
 class GarbageCollectedBatches {
     private readonly _survivedBatch;
-    private readonly _deleteBatch;
+    private readonly _deletedBatch;
 
     constructor(survivedBatch: PhotosBatch, deletedBatch: PhotosBatch) {
         this._survivedBatch = survivedBatch;
-        this._deleteBatch = deletedBatch;
+        this._deletedBatch = deletedBatch;
     }
 
     get survivedBatch(): PhotosBatch {
         return this._survivedBatch;
     }
 
-    get deleteBatch(): PhotosBatch {
-        return this._deleteBatch;
+    get deletedBatch(): PhotosBatch {
+        return this._deletedBatch;
     }
 }

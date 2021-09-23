@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ViewChild, ViewContainerRef} from "@angular/core";
-import {ServerClient} from "~/app/common/http";
+import {ServerClient} from "~/app/common/http/httpclient";
 import {RouterExtensions, registerElement, ModalDialogService} from "@nativescript/angular";
 import {RadSideDrawerComponent} from "nativescript-ui-sidedrawer/angular";
 import {RadSideDrawer} from "nativescript-ui-sidedrawer";
@@ -7,38 +7,34 @@ import {TNSFontIconService} from "nativescript-ngx-fonticon";
 import * as geolocation from "@nativescript/geolocation";
 import * as camera from "@nativescript/camera";
 import {Configuration} from "~/app/config/Configuration";
-import {Authentication} from "~/app/common/authentication";
-import {PhotosManager} from "~/app/home/photosmanager";
-import {PhotosUploader} from "~/app/home/photosuploader";
+import {Authentication} from "~/app/common/auth/authentication";
+import {PhotosManager} from "../photos/photosmanager";
+import {PhotosUploader} from "../photos/photosuploader";
 import {ErrorEventData, ResultEventData} from "@nativescript/background-http";
 import {alert} from "@nativescript/core/ui/dialogs";
-import {LocationService} from "~/app/home/locationservice";
+import {LocationService} from "../../locationservice";
 import {Location} from "~/app/locatedphotos/location";
-import {MapboxManager} from "~/app/home/mapboxmanager";
-import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
+import {MapboxManager, MapboxManagerBuilder} from "./mapboxmanager";
+import {AuthenticationEnsurer} from "~/app/common/auth/responsehandlers";
 
 registerElement("Mapbox", () => require("@nativescript-community/ui-mapbox").MapboxView);
 
 
 @Component({
-    templateUrl: "./photosmap.component.html",
-    styleUrls: ["../styles/common.style.scss", '../styles/sidemenu.style.scss']
+    templateUrl: "../../templates/markersmap/markersmap.component.html",
+    styleUrls: ["../../../styles/common.style.scss", '../../templates/markersmap/sidemenu.style.scss']
 })
-export class PhotosMapComponent implements AfterViewInit {
-    private PHOTO_UPLOAD_URL = "/api/v1/photos/";
+export class MarkersMapComponent implements AfterViewInit {
+    private static readonly PHOTO_UPLOAD_URL = "/api/v1/photos/";
 
-    private _client: ServerClient;
-    private _photosManager: PhotosManager
-    private _routerExtensions: RouterExtensions;
+    private readonly _mapboxManagerBuilder: MapboxManagerBuilder;
+    private readonly _photosManager: PhotosManager
+    private readonly _photosUploader: PhotosUploader;
+    private readonly _locationService: LocationService;
+
     private _drawer: RadSideDrawer;
-    private _photosUploader: PhotosUploader;
-    private _locationService: LocationService;
     private _currentLocation: Location;
-    private _config: Configuration;
     private _mapboxManager: MapboxManager;
-    private _authenticationEnsurer: AuthenticationEnsurer;
-    private _modalDialogService: ModalDialogService;
-    private _vcRef: ViewContainerRef
 
     processing: boolean = false
 
@@ -49,15 +45,15 @@ export class PhotosMapComponent implements AfterViewInit {
                 fontIconService: TNSFontIconService, config: Configuration,
                 auth: Authentication, locationService: LocationService,
                 modalDialogService: ModalDialogService, vcRef: ViewContainerRef) {
-        this._client = client;
-        this._routerExtensions = routerExtensions;
+        this._mapboxManagerBuilder = new MapboxManagerBuilder()
+            .withClient(client)
+            .withAuthenticationEnsurer(new AuthenticationEnsurer(auth, routerExtensions))
+            .withConfig(config)
+            .withModalDialogService(modalDialogService)
+            .withViewContainer(vcRef);
         this._locationService = locationService;
-        this._photosUploader = new PhotosUploader(config.getServerUrl() + this.PHOTO_UPLOAD_URL, auth);
+        this._photosUploader = new PhotosUploader(config.getServerUrl() + MarkersMapComponent.PHOTO_UPLOAD_URL, auth);
         this._photosManager = new PhotosManager(config, locationService);
-        this._config = config;
-        this._authenticationEnsurer = new AuthenticationEnsurer(auth, routerExtensions);
-        this._modalDialogService = modalDialogService;
-        this._vcRef = vcRef;
     }
 
     async ngAfterViewInit() {
@@ -103,8 +99,9 @@ export class PhotosMapComponent implements AfterViewInit {
     async onMapReady($event: any) {
         let currentLocation = await this._locationService.getLocation();
         let mapboxView = $event.map;
-        this._mapboxManager = new MapboxManager(this._client, this._config, mapboxView,
-            this._authenticationEnsurer, this._modalDialogService, this._vcRef);
+        this._mapboxManager = this._mapboxManagerBuilder
+            .withMapBoxView(mapboxView)
+            .build();
         await this._mapboxManager.initMapbox(currentLocation);
     }
 }

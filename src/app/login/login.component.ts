@@ -1,10 +1,10 @@
 import {Component, OnInit} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {ServerClient} from "~/app/common/http";
+import {ServerClient} from "~/app/common/http/httpclient";
 import {HttpResponse, Page} from "@nativescript/core";
-import {UserCredentials} from "../common/usercredentials";
+import {UserCredentialsDto} from "../common/auth/dto";
 import {RouterExtensions} from "@nativescript/angular";
-import {Authentication} from "~/app/common/authentication";
+import {Authentication} from "~/app/common/auth/authentication";
 import {alert} from "@nativescript/core/ui/dialogs";
 
 @Component({
@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
         if (this.validateForm()) {
             let email = this.loginForm.get('email').value;
             let password = this.loginForm.get('password').value;
-            let credentials = new UserCredentials(email, password);
+            let credentials = new UserCredentialsDto(email, password);
             try {
                 let response = await this.client.loginUser(credentials);
                 await this.handleResponse(response);

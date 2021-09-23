@@ -3,11 +3,11 @@ import {
     session,
     Task
 } from "@nativescript/background-http";
-import {Authentication} from "../common/authentication";
+import {Authentication} from "~/app/common/auth/authentication";
 
 export class PhotosUploader {
-    private _photoUploadUrl: string
-    private _auth: Authentication
+    private readonly _photoUploadUrl: string;
+    private readonly _auth: Authentication;
 
     constructor(photoUpdateUrl: string, auth: Authentication) {
         this._photoUploadUrl = photoUpdateUrl;
@@ -28,9 +28,9 @@ export class PhotosUploader {
         let params = [
             {name: "image", filename: photoAtLocation.photo.filePath},
             {name: "name", value: photoAtLocation.photo.name},
-            {name: "latitude", value: photoAtLocation.location.latitude},
-            {name: "longitude", value: photoAtLocation.location.longitude},
-            {name: "timestamp", value: photoAtLocation.location.timestamp},
+            {name: "latitude", value: photoAtLocation.locationWithTime.location.latitude},
+            {name: "longitude", value: photoAtLocation.locationWithTime.location.longitude},
+            {name: "timestamp", value: photoAtLocation.locationWithTime.timestamp},
         ];
         return imageUploadSession.multipartUpload(params, request);
     }

@@ -1,28 +1,28 @@
 import {HttpResponse, request} from "@nativescript/core/http";
 import {Injectable} from "@angular/core";
-import {Configuration} from "../config/Configuration";
-import {Authentication} from "~/app/common/authentication";
+import {Configuration} from "../../config/Configuration";
+import {Authentication} from "../auth/authentication";
 
 @Injectable({
     providedIn: "root"
 })
 export class ServerClient {
-    private _serverUrl: string;
-    private _auth: Authentication
+    private static readonly USERS_ENDPOINT = "/api/v1/users/";
+    private static readonly AUTHENTICATION_ENDPOINT = "/api-token-auth/";
+    private static readonly PHOTOS_ENDPOINT = "/api/v1/photos/";
+    private static readonly PHOTOS_AT_LOCATION_ENDPOINT = "/api/v1/photos-at-location/";
 
-    private USERS_ENDPOINT = "/api/v1/users/";
-    private AUTHENTICATION_ENDPOINT = "/api-token-auth/";
-    private PHOTOS_ENDPOINT = "/api/v1/photos/";
-    private PHOTOS_AT_LOCATION_ENDPOINT = "/api/v1/photos-at-location/";
+    private readonly _serverUrl: string;
+    private readonly _auth: Authentication;
 
-    public constructor(config: Configuration, auth: Authentication) {
+    constructor(config: Configuration, auth: Authentication) {
         this._serverUrl = config.getServerUrl();
         this._auth = auth;
     }
 
     async registerUser(newUser: any): Promise<HttpResponse> {
         return await request({
-            url: this._serverUrl + this.USERS_ENDPOINT,
+            url: this._serverUrl + ServerClient.USERS_ENDPOINT,
             method: "POST",
             headers: {"Content-Type": "application/json"},
             content: JSON.stringify({
@@ -34,7 +34,7 @@ export class ServerClient {
 
     async loginUser(user: any): Promise<HttpResponse> {
         return await request({
-            url: this._serverUrl + this.AUTHENTICATION_ENDPOINT,
+            url: this._serverUrl + ServerClient.AUTHENTICATION_ENDPOINT,
             method: "POST",
             headers: {"Content-Type": "application/json"},
             content: JSON.stringify({
@@ -46,7 +46,7 @@ export class ServerClient {
 
     async getPhotosBasedOnLocation(location: any): Promise<HttpResponse> {
         return await request({
-            url: this._serverUrl + this.PHOTOS_AT_LOCATION_ENDPOINT +
+            url: this._serverUrl + ServerClient.PHOTOS_AT_LOCATION_ENDPOINT +
                 `?latitude=${location.latitude}&longitude=${location.longitude}`,
             headers: {
                 "Authorization": `Token ${this._auth.token}`
@@ -56,7 +56,7 @@ export class ServerClient {
     }
 
     async getChronologicalGallery(): Promise<HttpResponse> {
-        return await this.getChronologicalGalleryViaUrl(this._serverUrl + this.PHOTOS_ENDPOINT);
+        return await this.getChronologicalGalleryViaUrl(this._serverUrl + ServerClient.PHOTOS_ENDPOINT);
     }
 
     async getChronologicalGalleryViaUrl(url: string): Promise<HttpResponse> {

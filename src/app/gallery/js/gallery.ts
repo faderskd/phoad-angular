@@ -1,6 +1,6 @@
 import {ObservableArray} from "@nativescript/core";
-import {PhotoAtLocation} from "~/app/locatedphotos/photos";
-import {PhotosBatch} from "~/app/locatedphotos/batch";
+import {PhotoAtLocation} from "../../locatedphotos/photos";
+import {PhotosBatch} from "../../locatedphotos/batch";
 
 export class SlidingGallery extends PhotosBatch {
     takeNextPhoto(photo: PhotoAtLocation): PhotoAtLocation {

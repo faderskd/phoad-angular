@@ -1,16 +1,33 @@
 export class Location {
-    private readonly _latitude: number
-    private readonly _longitude: number
-    private readonly _timestamp: string
+    private readonly _latitude: number;
+    private readonly _longitude: number;
 
-    constructor(latitude: number, longitude: number, timestamp: string) {
+    constructor(latitude: number, longitude: number) {
         this._latitude = latitude;
         this._longitude = longitude;
-        this._timestamp = timestamp
     }
 
     get longitude(): number {
         return this._longitude;
+    }
+
+
+    get latitude(): number {
+        return this._latitude;
+    }
+}
+
+export class LocationWithTime {
+    private readonly _location: Location;
+    private readonly _timestamp: string;
+
+    constructor(location: Location, timestamp: string) {
+        this._location = location;
+        this._timestamp = timestamp;
+    }
+
+    get location(): Location {
+        return this._location;
     }
 
     get timestamp(): string {
@@ -19,9 +36,5 @@ export class Location {
 
     getHumanReadableTimestamp(): string {
         return this.timestamp.substring(0, 10);
-    }
-
-    get latitude(): number {
-        return this._latitude;
     }
 }

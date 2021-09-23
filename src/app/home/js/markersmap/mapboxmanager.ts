@@ -1,31 +1,32 @@
-import {Location} from "../locatedphotos/location";
-import {PhotosBatchParser} from "../locatedphotos/photosbatchparser";
+import {Location} from "~/app/locatedphotos/location";
+import {PhotosBatchParser} from "~/app/locatedphotos/photosbatchparser";
 import {alert} from "@nativescript/core/ui/dialogs";
 import {MapboxMarker, MapboxView} from "@nativescript-community/ui-mapbox";
 import {LatLng} from "@nativescript-community/ui-mapbox/mapbox.common";
-import {PhotosBatch} from "../locatedphotos/batch";
-import {ServerClient} from "../common/http";
+import {PhotosBatch} from "~/app/locatedphotos/batch";
+import {ServerClient} from "~/app/common/http/httpclient";
 import {Configuration} from "~/app/config/Configuration";
 import * as _ from "lodash";
-import {AuthenticationEnsurer} from "~/app/common/responsehandlers";
+import {AuthenticationEnsurer} from "~/app/common/auth/responsehandlers";
 import {ModalDialogService} from "@nativescript/angular";
 import {ViewContainerRef} from "@angular/core";
-import {MarkersCleaner} from "~/app/home/markerscleaner";
-import {LocationAwarePhotosBatch} from "~/app/home/locationawarephotosbatch";
-import {SlidingGallery} from "~/app/gallery/gallery";
+import {MarkersCleaner} from "./markerscleaner";
+import {LocationAwarePhotosBatch} from "../photos/locationawarephotosbatch";
+import {SlidingGallery} from "~/app/gallery/js/gallery";
 import {HttpResponse} from "@nativescript/core/http";
-import {MarkerModalComponent} from "~/app/home/marker-modal.component";
+import {MarkerModalComponent} from "../markersmodal/marker-modal.component";
 
 export class MapboxManager {
     private readonly _client: ServerClient;
+    private readonly _config: Configuration;
+    private readonly _mapboxView: MapboxView;
+    private readonly _currentMarkersNames: Set<String>;
+    private readonly _authenticationEnsurer: AuthenticationEnsurer;
+    private readonly _modalDialogService: ModalDialogService;
+    private readonly _vcRef: ViewContainerRef;
+    private readonly _markersCleaner: MarkersCleaner;
+
     private _photosBatch: LocationAwarePhotosBatch;
-    private _config: Configuration;
-    private _mapboxView: MapboxView;
-    private _currentMarkersNames: Set<String>;
-    private _authenticationEnsurer: AuthenticationEnsurer;
-    private _modalDialogService: ModalDialogService;
-    private _vcRef: ViewContainerRef;
-    private _markersCleaner: MarkersCleaner;
 
     constructor(client: ServerClient, config: Configuration, mapboxView: MapboxView,
                 authenticationEnsurer: AuthenticationEnsurer, modalDialogService: ModalDialogService,
@@ -61,23 +62,22 @@ export class MapboxManager {
             latitude: data.lat,
             longitude: data.lng
         };
-        let domainLocation = new Location(
-            locationAfterMapMoved.latitude, locationAfterMapMoved.longitude, new Date().toISOString());
+        let location = new Location(locationAfterMapMoved.latitude, locationAfterMapMoved.longitude);
 
         try {
-            let response = await this.getPhotosBasedOnLocation(domainLocation);
+            let response = await this.getPhotosBasedOnLocation(location);
             let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
             this._photosBatch.update(photosBatch);
 
             await this.addMarkers(photosBatch);
-            await this.collectGarbagePhotosIfNeeded(domainLocation);
+            await this.collectGarbagePhotosIfNeeded(location);
         } catch (err) {
             console.log(err);
             await alert("Sorry something gone wrong while fetching photos:( Please try again...");
         }
     }
 
-    async setLocatedPhotosOnMap(currentLocation: Location) {
+    private async setLocatedPhotosOnMap(currentLocation: Location) {
         try {
             let response = await this.getPhotosBasedOnLocation(currentLocation);
             let photosBatch = PhotosBatchParser.parse(response.content.toJSON());
@@ -104,7 +104,7 @@ export class MapboxManager {
     private async removeOutermostLocatedPhotos(location: Location) {
         let garbageCollectedBatches = this._markersCleaner.extractSurvivorAndDeleteBatches(location, this._photosBatch);
         this._photosBatch = LocationAwarePhotosBatch.fromBasicBatch(garbageCollectedBatches.survivedBatch);
-        let removedMarkersNames = garbageCollectedBatches.deleteBatch.photos.map(locatedPhoto => locatedPhoto.photo.name);
+        let removedMarkersNames = garbageCollectedBatches.deletedBatch.photos.map(locatedPhoto => locatedPhoto.photo.name);
         removedMarkersNames.forEach(id => this._currentMarkersNames.delete(id));
         await this._mapboxView.removeMarkers(removedMarkersNames);
     }
@@ -115,8 +115,8 @@ export class MapboxManager {
             .map(value => {
                 return {
                     id: value.photo.name,
-                    lat: value.location.latitude,
-                    lng: value.location.longitude,
+                    lat: value.locationWithTime.location.latitude,
+                    lng: value.locationWithTime.location.longitude,
                     onTap: async (marker: MapboxMarker) => {
                         await this.markerClickedCallback(marker);
                     }
@@ -127,7 +127,7 @@ export class MapboxManager {
     }
 
     private async markerClickedCallback(marker: MapboxMarker) {
-        let location = new Location(marker.lat, marker.lng, new Date().toISOString());
+        let location = new Location(marker.lat, marker.lng);
         await this.showModal(this._photosBatch.findByLocation(location));
     }
 
@@ -141,5 +141,50 @@ export class MapboxManager {
             viewContainerRef: this._vcRef
         };
         await this._modalDialogService.showModal(MarkerModalComponent, options);
+    }
+}
+
+
+export class MapboxManagerBuilder {
+    private _client: ServerClient;
+    private _config: Configuration;
+    private _mapboxView: MapboxView;
+    private _authenticationEnsurer: AuthenticationEnsurer;
+    private _modalDialogService: ModalDialogService;
+    private _vcRef: ViewContainerRef;
+
+    withClient(client: ServerClient) {
+        this._client = client;
+        return this;
+    }
+
+    withConfig(config: Configuration) {
+        this._config = config;
+        return this;
+    }
+
+    withMapBoxView(mapboxView: MapboxView) {
+        this._mapboxView = mapboxView;
+        return this;
+    }
+
+    withAuthenticationEnsurer(authenticationEnsurer: AuthenticationEnsurer) {
+        this._authenticationEnsurer = authenticationEnsurer;
+        return this;
+    }
+
+    withModalDialogService(modalDialogService: ModalDialogService) {
+        this._modalDialogService = modalDialogService;
+        return this;
+    }
+
+    withViewContainer(vcRef: ViewContainerRef) {
+        this._vcRef = vcRef;
+        return this;
+    }
+
+    build() {
+        return new MapboxManager(this._client, this._config, this._mapboxView, this._authenticationEnsurer,
+            this._modalDialogService, this._vcRef);
     }
 }

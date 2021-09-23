@@ -1,13 +1,13 @@
-import {Location} from "./location";
+import {LocationWithTime} from "./location";
 
 
 export class PhotoAtLocation {
-    private readonly _location: Location;
+    private readonly _locationWithTime: LocationWithTime;
     private readonly _photo: Photo;
     private readonly _index: number
 
-    constructor(location: Location, photo: Photo, index: number) {
-        this._location = location;
+    constructor(location: LocationWithTime, photo: Photo, index: number) {
+        this._locationWithTime = location;
         this._photo = photo;
         this._index = index;
     }
@@ -16,8 +16,8 @@ export class PhotoAtLocation {
         return this._photo;
     }
 
-    get location(): Location {
-        return this._location;
+    get locationWithTime(): LocationWithTime {
+        return this._locationWithTime;
     }
 
     get index(): number {

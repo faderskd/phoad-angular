@@ -8,13 +8,13 @@ import {AppComponent} from "./app.component";
 import {RegisterComponent} from "./registration/register.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {LoginComponent} from "~/app/login/login.component";
-import {PhotosMapComponent} from "~/app/home/photosmap.component";
+import {MarkersMapComponent} from "~/app/home/js/markersmap/markersmap.component";
 import {TNSFontIconModule} from "nativescript-ngx-fonticon";
 
 import {registerElement} from "@nativescript/angular";
-import {GalleryComponent} from "~/app/gallery/gallery.component";
-import {GalleryModalComponent} from "~/app/gallery/gallery.modal";
-import {MarkerModalComponent} from "~/app/home/marker-modal.component";
+import {GalleryComponent} from "~/app/gallery/js/gallery.component";
+import {GalleryModalComponent} from "~/app/gallery/js/gallery.modal";
+import {MarkerModalComponent} from "~/app/home/js/markersmodal/marker-modal.component";
 
 
 registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanager").PreviousNextView);
@@ -38,7 +38,7 @@ registerElement("PreviousNextView", () => require("@nativescript/iqkeyboardmanag
         AppComponent,
         RegisterComponent,
         LoginComponent,
-        PhotosMapComponent,
+        MarkersMapComponent,
         GalleryComponent,
         GalleryModalComponent,
         MarkerModalComponent

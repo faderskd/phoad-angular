@@ -4,15 +4,15 @@ import {File, ImageAsset} from "@nativescript/core";
 import {path} from "@nativescript/core/file-system";
 import {ImageSource} from "@nativescript/core/image-source";
 import {Configuration} from "~/app/config/Configuration";
-import {LocationService} from "~/app/home/locationservice";
-import {Location} from "~/app/locatedphotos/location";
+import {LocationService} from "../../locationservice";
+import {LocationWithTime} from "~/app/locatedphotos/location";
 
 export class PhotosManager {
-    constructor(private _config: Configuration, private _locationService: LocationService) {
+    constructor(private readonly _config: Configuration, private readonly _locationService: LocationService) {
     }
 
     async takePhotoAtLocation(): Promise<PhotoCapturedAtLocation> {
-        let location = await this._locationService.getLocation();
+        let location = await this._locationService.getLocationWithTime();
         let asset = await this.takePhoto();
         let photo = await this.saveToFile(location, asset);
         return new PhotoCapturedAtLocation(location, photo);
@@ -33,7 +33,7 @@ export class PhotosManager {
         );
     }
 
-    private async saveToFile(location: Location, imageAsset: ImageAsset): Promise<PhotoFile> {
+    private async saveToFile(location: LocationWithTime, imageAsset: ImageAsset): Promise<PhotoFile> {
         let filename = 'img_' + location.timestamp.split(':').join('_')
         filename = filename.split('.').join('_') + ".jpg";
         let filepath = path.join(this._config.photosSavePath, filename);

@@ -4,14 +4,14 @@ import {NativeScriptRouterModule} from "@nativescript/angular";
 
 import {RegisterComponent} from "./registration/register.component";
 import {LoginComponent} from "~/app/login/login.component";
-import {PhotosMapComponent} from "~/app/home/photosmap.component";
-import {GalleryComponent} from "~/app/gallery/gallery.component";
+import {MarkersMapComponent} from "~/app/home/js/markersmap/markersmap.component";
+import {GalleryComponent} from "~/app/gallery/js/gallery.component";
 
 const routes: Routes = [
     {path: "", redirectTo: "/login", pathMatch: "full"},
     {path: "register", component: RegisterComponent},
     {path: "login", component: LoginComponent},
-    {path: "home", component: PhotosMapComponent},
+    {path: "home", component: MarkersMapComponent},
     {path: "gallery", component: GalleryComponent},
 ];
 

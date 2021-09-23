@@ -1,7 +1,7 @@
 <FlexboxLayout class="dialog-wrapper" (swipe)="swipeDispatch($event)">
     <GridLayout rows="*, 6*">
         <GridLayout row="0" class="modal-title">
-            <label text="{{currentGalleryImage.location.getHumanReadableTimestamp()}}"></label>
+            <label text="{{currentGalleryImage.locationWithTime.getHumanReadableTimestamp()}}"></label>
         </GridLayout>
         <GridLayout row="1">
             <ContentView #galleryModalContent1>
